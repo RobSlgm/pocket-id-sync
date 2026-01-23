@@ -24,7 +24,8 @@ The primary goal of this tool is to provide a **declarative approach** to managi
 
 The core synchronization logic is functional. Current development is focused on stabilizing the integration with the Pocket ID API and refining the schema to ensure compatibility with future Kubernetes-native implementations.
 
-> [!WARNING] As this is an early beta, the YAML schemas are subject to change.
+> [!WARNING]
+> As this is an early beta, the YAML schemas are subject to change.
 
 
 # Quick start
@@ -72,7 +73,8 @@ To sync your local configuration to the **Pocket ID** server:
 PocketIdSync oidc-client sync --synchronize PocketID --store-root ./local-config --pocket-id-uri https://idp.example.com --api-key your_secret_key_here --dry-run
 ```
 
-> [!NOTE] Synching even a modest number of clients will propably trigger Pocket ID's rate limiting. You may need to change  DISABLE_RATE_LIMITING to true.
+> [!NOTE]
+> Synching even a modest number of clients will propably trigger Pocket ID's rate limiting. You may need to change  DISABLE_RATE_LIMITING to true.
 
 # Resource Definitions
 
@@ -139,7 +141,8 @@ spec:
   - **Inline**: You can provide the image data directly in the YAML using logoContent (base64/binary).
   - **Sidecar** (CLI Only): For local management, you can reference external files. When syncing to local files, you can choose between inline content (default) or sidecar files via a CLI flag.
 
-> [!NOTE] Sidecar file support is exclusive to the CLI and will not be supported in the future Kubernetes Operator.
+> [!NOTE]
+> Sidecar file support is exclusive to the CLI and will not be supported in the future Kubernetes Operator.
 
 ## Local configuration store
 
@@ -150,7 +153,8 @@ root
         oidcClient
         userGroup
 ~~~
-> [!WARNING] The directory structure is subject to change.
+> [!WARNING]
+> This directory structure is subject to change.
 
 ## Disclaimer
 

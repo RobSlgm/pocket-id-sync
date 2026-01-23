@@ -1,0 +1,124 @@
+name: 🏭 Release Pocket ID Sync
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+env:
+  PROJECT_PATH: "PocketIdSync/PocketIdSync.csproj"
+  APP_NAME: "PocketIdSync"
+  DOTNET_VERSION: "10.x"
+
+jobs:
+  build:
+    name: Build ${{ matrix.rid }}
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.nbgv.outputs.NuGetPackageVersion }}
+      isPrerelease: ${{ contains(steps.nbgv.outputs.PrereleaseVersion, '-') }}
+    strategy:
+      matrix:
+        rid:
+          - win-x64
+          - linux-x64
+          - osx-x64
+          - osx-arm64
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: NBGV
+        uses: dotnet/nbgv@v0.4.2
+        id: nbgv
+        with:
+          setAllVars: true
+
+      - name: Publish
+        run: |
+          dotnet publish ${{ env.PROJECT_PATH }} \
+          -c Release \
+          -r ${{ matrix.rid }} \
+          --self-contained true \
+          -p:PublishSingleFile=true \
+          -p:Version=${{ steps.nbgv.outputs.SimpleVersion }} \
+          -o ./publish/${{ matrix.rid }}
+
+      - name: Prepare Binary
+        shell: bash
+        run: |
+          # 1. Determine the source binary name (based on project filename usually)
+          # Assuming the binary name matches the project filename without extension.
+          # If your csproj is "MyTool.csproj", dotnet produces "MyTool" or "MyTool.exe"
+          PROJECT_FILENAME=$(basename "${{ env.PROJECT_PATH }}" .csproj)
+
+          # 2. Determine extensions
+          # Windows gets .exe, others get nothing
+          if [[ "${{ matrix.rid }}" == win* ]]; then
+            SRC_EXT=".exe"
+            DEST_EXT=".exe"
+          else
+            SRC_EXT=""
+            DEST_EXT=""
+          fi
+
+          # 3. Construct source and destination paths
+          SRC_FILE="./publish/${{ matrix.rid }}/$PROJECT_FILENAME$SRC_EXT"
+
+          # New Name: MyApp-v1.2.3-linux-x64
+          VERSION="${{ steps.nbgv.outputs.SimpleVersion }}"
+          DEST_NAME="${{ env.APP_NAME }}-${{ matrix.rid }}$DEST_EXT"
+
+          echo "Moving $SRC_FILE to $DEST_NAME"
+          mv "$SRC_FILE" "$DEST_NAME"
+
+          # 4. Generate Checksum
+          # shasum is available on ubuntu runners. We use -b for binary mode.
+          # We output to a file named [BinaryName].sha256
+
+          sha256sum -b "$DEST_NAME" > "$DEST_NAME.sha256"
+
+          # 5. Save the new filename to ENV for the upload step
+          echo "ARTIFACT_BINARY=$DEST_NAME" >> $GITHUB_ENV
+          echo "ARTIFACT_HASH=$DEST_NAME.sha256" >> $GITHUB_ENV
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: binary-${{ matrix.rid }}
+          path: |
+            ${{ env.ARTIFACT_BINARY }}
+            ${{ env.ARTIFACT_HASH }}
+
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Required to create releases
+    steps:
+      - name: Download All Artifacts
+        uses: actions/download-artifact@v7
+        with:
+          path: artifacts
+          pattern: binary-*
+          merge-multiple: true
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          # If triggered by tag, use that tag. If manual, use the NBGV calculated tag.
+          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || needs.build.outputs.version }}
+          name: "Release ${{ github.ref_type == 'tag' && github.ref_name || needs.build.outputs.version }}"
+          files: artifacts/*
+          generate_release_notes: true
+          draft: false
+          prerelease: ${{ needs.build.outputs.isPrerelease == 'true' }}

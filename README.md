@@ -144,17 +144,9 @@ spec:
 > [!NOTE]
 > Sidecar file support is exclusive to the CLI and will not be supported in the future Kubernetes Operator.
 
-## Local configuration store
+### Local configuration store
 
-Currently the local configuration must be stored in a directory (in the example named `root`) having following subdirectories
-~~~yaml
-root
-    default
-        oidcClient
-        userGroup
-~~~
-> [!WARNING]
-> This directory structure is subject to change.
+Currently the local configuration must be stored in an existing directory (option `--store-root`). The subdirectories `oidcclient` and `usergroup` are created and contain the corresponding specification files.
 
 ## Disclaimer
 

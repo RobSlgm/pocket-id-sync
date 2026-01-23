@@ -18,7 +18,7 @@ sealed class OidcClientFilestore : IConfigStoreOidcClient
 
     public OidcClientFilestore(string rootPath, YamlHelper yamlHelper)
     {
-        Root = new DirectoryInfo(Path.Combine(rootPath, "default", "oidcClient"));
+        Root = Directory.CreateDirectory(Path.Combine(rootPath, "oidcclient"));
         Yaml = yamlHelper;
     }
 

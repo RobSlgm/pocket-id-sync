@@ -17,7 +17,7 @@ sealed class UserGroupFilestore : IConfigStoreUserGroup
 
     public UserGroupFilestore(string rootPath, YamlHelper yamlHelper)
     {
-        Root = new DirectoryInfo(Path.Combine(rootPath, "default", "userGroup"));
+        Root = Directory.CreateDirectory(Path.Combine(rootPath, "usergroup"));
         Yaml = yamlHelper;
     }
 

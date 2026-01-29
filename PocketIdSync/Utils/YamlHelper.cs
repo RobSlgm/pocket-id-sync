@@ -19,6 +19,7 @@ sealed class YamlHelper
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
             .WithTagMapping("tag:yaml.org,2002:binary", typeof(byte[]))
             .WithTypeConverter(new StaticByteArrayConverter())
+            .IgnoreUnmatchedProperties()
             // .WithTagMapping("!binary", typeof(byte[]))
             .Build();
         Serializer = new StaticSerializerBuilder(new SourceGenerationYamlContext())

@@ -10,7 +10,7 @@ using PocketIdSync.Utils;
 
 namespace PocketIdSync.Sync;
 
-internal sealed class OidcClientSynchronizer : ISynchronizer<OidcClientSyncItem>
+sealed class OidcClientSynchronizer : ISynchronizer<OidcClientSyncItem>
 {
     public List<OidcClientSyncItem> Items { get; private set; } = [];
     private Dictionary<string, UserGroupMinimalDto> UserGroups { get; } = new Dictionary<string, UserGroupMinimalDto>(StringComparer.OrdinalIgnoreCase);
@@ -253,6 +253,17 @@ internal sealed class OidcClientSynchronizer : ISynchronizer<OidcClientSyncItem>
                                 var isSameContent = new Span<byte>(logoResponse.Data).SequenceEqual(new Span<byte>(localLogo.Content));
                                 if (isSameContent == true)
                                 {
+                                    if (!localLogo.isSidecar && client.LocalMerged is not null)
+                                    {
+                                        if (theme == LogoThemeMode.Light)
+                                        {
+                                            client.LocalMerged.Spec?.LogoContent = localLogo.Content;
+                                        }
+                                        else
+                                        {
+                                            client.LocalMerged.Spec?.LogoDarkContent = localLogo.Content;
+                                        }
+                                    }
                                     continue;   // nothing to do, logo is not changed
                                 }
                             }

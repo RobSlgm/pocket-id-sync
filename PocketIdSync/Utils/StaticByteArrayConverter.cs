@@ -6,7 +6,7 @@ using YamlDotNet.Serialization;
 namespace PocketIdSync.Utils;
 
 
-public class StaticByteArrayConverter : IYamlTypeConverter
+sealed class StaticByteArrayConverter : IYamlTypeConverter
 {
     public bool Accepts(Type type) => type == typeof(byte[]);
 

@@ -8,7 +8,7 @@ using PocketIdSync.ModelSpecs;
 
 namespace PocketIdSync.Sync;
 
-internal sealed class UserGroupSynchronizer : ISynchronizer<UserGroupSyncItem>
+sealed class UserGroupSynchronizer : ISynchronizer<UserGroupSyncItem>
 {
     public List<UserGroupSyncItem> Items { get; private set; } = [];
     private readonly IConfigStoreUserGroup Configuration;

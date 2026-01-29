@@ -4,7 +4,7 @@ using System.Linq;
 namespace PocketIdSync.Utils;
 
 
-public static class MimeTypeUtil
+static class MimeTypeUtil
 {
     /// <summary>
     /// Convert common file extension to a mime type (e.g. .jpg to image/jpeg)

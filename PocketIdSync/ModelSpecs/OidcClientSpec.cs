@@ -9,10 +9,10 @@ sealed partial class OidcClientSpec
     public string? Id { get; set; }
     public string? Name { get; set; }
 
-    [UnorderedEquality]
+    [UnorderedEquality(System.StringComparison.OrdinalIgnoreCase)]
     public string[] CallbackURLs { get; set; } = [];
 
-    [UnorderedEquality]
+    [UnorderedEquality(System.StringComparison.OrdinalIgnoreCase)]
     public string[] LogoutCallbackURLs { get; set; } = [];
 
     public string? LaunchURL { get; set; }
@@ -25,7 +25,7 @@ sealed partial class OidcClientSpec
 
     public OidcClientCredentialsDto? Credentials { get; set; }
 
-    [UnorderedEquality]
+    [UnorderedEquality(System.StringComparison.OrdinalIgnoreCase)]
     public string[] AllowedGroups { get; set; } = [];
 
     public string? LogoPath { get; set; }

@@ -2,18 +2,18 @@
 
 interface ISyncItem<L, R>
 {
-    public string? Filename { get; set; }
-    public string? Namespace { get; set; }
-    public string? Name { get; set; }
-    public string? Id { get; set; }
-    public L? Local { get; set; }
-    public L? LocalMerged { get; set; }
-    public R? Remote { get; set; }
-    public R? RemoteMerged { get; set; }
-    public bool IsRemoteEqualLocal { get; }
+    string? Filename { get; set; }
+    string? Namespace { get; set; }
+    string? Name { get; set; }
+    string? Id { get; set; }
+    L? Local { get; set; }
+    L? LocalMerged { get; set; }
+    R? Remote { get; set; }
+    R? RemoteMerged { get; set; }
+    bool IsRemoteEqualLocal { get; }
 
-    public void SetError(string? message = null);
-    public bool HasError { get; }
-    public string? Message { get; }
-    public bool IsLocalDirty { get; set; }
+    void SetError(string? message = null);
+    bool HasError { get; }
+    string? Message { get; }
+    bool IsLocalDirty { get; set; }
 }

@@ -28,4 +28,4 @@ namespace PocketIdSync.Models;
 [JsonSerializable(typeof(Paginated<OidcClientWithAllowedGroupsCountDto>))]
 [JsonSerializable(typeof(Paginated<UserGroupMinimalDto>))]
 [JsonSerializable(typeof(VersionInfoDto))]
-internal sealed partial class SourceGenerationContext : JsonSerializerContext { }
+sealed partial class SourceGenerationContext : JsonSerializerContext { }

@@ -4,7 +4,7 @@ using RestSharp;
 
 namespace PocketIdSync.Apis;
 
-class OidcClientsLogoApi(PocketIdClient PocketId, string Id, LogoThemeMode Theme)
+sealed class OidcClientsLogoApi(PocketIdClient PocketId, string Id, LogoThemeMode Theme)
 {
     public async Task<ApiResult<byte[]>> GetAsync(CancellationToken ct)
     {

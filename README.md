@@ -118,13 +118,11 @@ spec:
     - public
     - family
   logoPath: an-example-application.jpg
-  logoContent: !!binary |-
-    /9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMDAsK
-    ...
+  logoContent: >-
+    /9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMD...
   logoDarkPath: an-example-application-dark.svg
-  logoDarkContent: !!binary |-
-    PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NDAiIGhlaWdo
-    ...
+  logoDarkContent: >-
+    PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NDAiIGhla...
 ```
 
 - **Optional Fields**: All values under spec are technically optional.

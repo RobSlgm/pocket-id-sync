@@ -3,7 +3,7 @@ using PocketIdSync.ModelSpecs;
 
 namespace PocketIdSync.Sync;
 
-class OidcClientSyncItem : ISyncItem<OidcClientKind, OidcClientWithAllowedGroupsDto>
+sealed class OidcClientSyncItem : ISyncItem<OidcClientKind, OidcClientWithAllowedGroupsDto>
 {
     public string? Filename { get; set; }
     public string? Namespace { get; set; }

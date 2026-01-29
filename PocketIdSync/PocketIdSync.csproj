@@ -12,8 +12,8 @@
         <JsonSerializerIsReflectionEnabledByDefault>false</JsonSerializerIsReflectionEnabledByDefault>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Generator.Equals" Version="3.2.1" />
-        <PackageReference Include="Meziantou.Analyzer" Version="2.0.285" Condition="'$(Configuration)' == 'Debug'">
+        <PackageReference Include="Generator.Equals" Version="3.3.0" />
+        <PackageReference Include="Meziantou.Analyzer" Version="2.0.286" Condition="'$(Configuration)' == 'Debug'">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>

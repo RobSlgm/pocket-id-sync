@@ -5,7 +5,7 @@ using PocketIdSync.Apis;
 
 namespace PocketIdSync.Sync;
 
-internal interface ISynchronizer<T>
+interface ISynchronizer<T>
 {
     List<T> Items { get; }
 

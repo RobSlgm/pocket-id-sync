@@ -5,7 +5,7 @@ namespace PocketIdSync.Models;
 [Equatable]
 partial class OidcClientDto
 {
-    [UnorderedEquality]
+    [UnorderedEquality(System.StringComparison.OrdinalIgnoreCase)]
     public string[] CallbackURLs { get; set; } = [];
 
     public OidcClientCredentialsDto? Credentials { get; set; }
@@ -22,7 +22,7 @@ partial class OidcClientDto
 
     public string? LaunchURL { get; set; }
 
-    [UnorderedEquality]
+    [UnorderedEquality(System.StringComparison.OrdinalIgnoreCase)]
     public string[] LogoutCallbackURLs { get; set; } = [];
 
     public string? Name { get; set; }

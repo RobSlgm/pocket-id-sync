@@ -4,7 +4,7 @@ using PocketIdSync.Sync;
 
 namespace PocketIdSync.Cli;
 
-internal abstract class SyncCommandBase : AuthorizationCommandBase
+abstract class SyncCommandBase : AuthorizationCommandBase
 {
     [CliOption(Description = "Filename (selector)", Alias = "f", Required = false)]
     public string? Filename { get; set; }

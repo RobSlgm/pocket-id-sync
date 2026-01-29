@@ -7,7 +7,7 @@ using RestSharp.Serializers.Json;
 
 namespace PocketIdSync.Apis;
 
-internal class PocketIdClient
+sealed class PocketIdClient
 {
     public IRestClient Api { get; private set; }
     public string BaseUrl { get; init; }
@@ -52,7 +52,7 @@ internal class PocketIdClient
     }
 }
 
-internal static class PocketIdApi
+static class PocketIdApi
 {
     extension(PocketIdClient client)
     {

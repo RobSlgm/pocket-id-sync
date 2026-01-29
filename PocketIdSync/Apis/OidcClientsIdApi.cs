@@ -6,7 +6,7 @@ using RestSharp;
 
 namespace PocketIdSync.Apis;
 
-class OidcClientsIdApi(PocketIdClient PocketId, string Id)
+sealed class OidcClientsIdApi(PocketIdClient PocketId, string Id)
 {
     public OidcClientsLogoApi Logo(LogoThemeMode theme) => new(PocketId, Id, theme);
 

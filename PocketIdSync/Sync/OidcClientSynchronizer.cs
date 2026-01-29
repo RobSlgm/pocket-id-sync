@@ -10,7 +10,7 @@ using PocketIdSync.Utils;
 
 namespace PocketIdSync.Sync;
 
-internal sealed class OidcClientSynchronizer : ISynchronizer<OidcClientSyncItem>
+sealed class OidcClientSynchronizer : ISynchronizer<OidcClientSyncItem>
 {
     public List<OidcClientSyncItem> Items { get; private set; } = [];
     private Dictionary<string, UserGroupMinimalDto> UserGroups { get; } = new Dictionary<string, UserGroupMinimalDto>(StringComparer.OrdinalIgnoreCase);

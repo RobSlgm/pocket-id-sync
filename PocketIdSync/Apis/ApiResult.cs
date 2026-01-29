@@ -7,7 +7,7 @@ namespace PocketIdSync.Apis;
 record ApiResult<T>(bool IsSuccessful, HttpStatusCode? Status = null, T? Data = default, Uri? Uri = null, string? MimeType = null, long? ContentLength = null, string? errorMessage = null) { }
 
 
-internal static class ApiResultExtensions
+static class ApiResultExtensions
 {
     extension(RestResponseBase response)
     {

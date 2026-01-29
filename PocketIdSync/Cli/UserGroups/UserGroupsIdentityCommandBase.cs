@@ -7,7 +7,7 @@ using Spectre.Console;
 
 namespace PocketIdSync.Cli.UserGroups;
 
-internal abstract class UserGroupsIdentityCommandBase : AuthorizationCommandBase
+abstract class UserGroupsIdentityCommandBase : AuthorizationCommandBase
 {
     [CliArgument(Description = "User group Id", Required = false, Arity = CliArgumentArity.ZeroOrOne)]
     public string? UserGroupId { get; set; }

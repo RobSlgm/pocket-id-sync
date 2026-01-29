@@ -3,7 +3,7 @@ using PocketIdSync.ModelSpecs;
 
 namespace PocketIdSync.Sync;
 
-class UserGroupSyncItem : ISyncItem<UserGroupKind, UserGroupDto>
+sealed class UserGroupSyncItem : ISyncItem<UserGroupKind, UserGroupDto>
 {
     public string? Filename { get; set; }
     public string? Namespace { get; set; }

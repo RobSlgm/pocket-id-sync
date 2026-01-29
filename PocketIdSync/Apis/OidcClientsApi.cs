@@ -5,7 +5,7 @@ using RestSharp;
 
 namespace PocketIdSync.Apis;
 
-class OidcClientsApi(PocketIdClient pocketId)
+sealed class OidcClientsApi(PocketIdClient pocketId)
 {
     public OidcClientsIdApi Id(string id) => new(pocketId, id);
 

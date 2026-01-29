@@ -61,7 +61,7 @@ sealed class SyncCommand : SyncCommandBase
         {
             return ExitCode.BadRequest;
         }
-        var selector = new SyncItemSelector { Filename = Filename, Name = Name, Namespace = Namespace };
+        var selector = new SyncItemSelector { Filename = Filename, Name = Name, Namespace = Namespace, };
 
         if (SynchronizationTarget == SynchronizationTarget.PocketID)
         {

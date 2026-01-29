@@ -253,6 +253,17 @@ sealed class OidcClientSynchronizer : ISynchronizer<OidcClientSyncItem>
                                 var isSameContent = new Span<byte>(logoResponse.Data).SequenceEqual(new Span<byte>(localLogo.Content));
                                 if (isSameContent == true)
                                 {
+                                    if (!localLogo.isSidecar && client.LocalMerged is not null)
+                                    {
+                                        if (theme == LogoThemeMode.Light)
+                                        {
+                                            client.LocalMerged.Spec?.LogoContent = localLogo.Content;
+                                        }
+                                        else
+                                        {
+                                            client.LocalMerged.Spec?.LogoDarkContent = localLogo.Content;
+                                        }
+                                    }
                                     continue;   // nothing to do, logo is not changed
                                 }
                             }

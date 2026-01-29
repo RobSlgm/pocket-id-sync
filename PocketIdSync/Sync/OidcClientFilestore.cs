@@ -133,8 +133,8 @@ sealed class OidcClientFilestore : IConfigStoreOidcClient
         try
         {
             if (data is null || string.IsNullOrEmpty(client.Filename)) return ExitCode.BadRequest;
-            var name = !string.Equals(data.Kind, "OidcClient", StringComparison.OrdinalIgnoreCase) ? $"{client.Id}.{data.Kind}.yaml" : $"{client.Id}.yaml";
             var fileName = new FileInfo(client.Filename);
+            var name = !string.Equals(data.Kind, "OidcClient", StringComparison.OrdinalIgnoreCase) ? $"{client.Id}.{data.Kind}.yaml" : fileName.Name;
             var yamlPath = Path.Combine(fileName.DirectoryName!, name);
             var content = Yaml.Write(data);
             var utf8Encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
@@ -188,28 +188,28 @@ sealed class OidcClientFilestore : IConfigStoreOidcClient
     {
         try
         {
-            if (string.IsNullOrEmpty(client.Filename)) return new(ExitCode.BadRequest, default, default, default);
-            if (client.Local?.Spec is null) return new(ExitCode.BadRequest, default, default, default);
+            if (string.IsNullOrEmpty(client.Filename)) return new(ExitCode.BadRequest, default, default, default, default);
+            if (client.Local?.Spec is null) return new(ExitCode.BadRequest, default, default, default, default);
             var spec = client.Local.Spec;
 
             var logoFilename = theme == LogoThemeMode.Light ? spec.LogoPath : spec.LogoDarkPath;
-            if (string.IsNullOrEmpty(logoFilename)) return new(ExitCode.BadRequest, default, default, default);
+            if (string.IsNullOrEmpty(logoFilename)) return new(ExitCode.BadRequest, default, default, default, default);
             var mimetype = MimeTypeUtil.ToMimeType(new FileInfo(logoFilename).Extension);
 
-            var logoContent = theme == LogoThemeMode.Light ? spec.LogoContent : spec.LogoDarkContent;
-            if (logoContent is not null && logoContent.Length > 0)
+            var inlineContent = theme == LogoThemeMode.Light ? spec.LogoContent : spec.LogoDarkContent;
+            if (inlineContent is not null && inlineContent.Length > 0)
             {
-                return new(ExitCode.Success, logoContent, mimetype, logoFilename);
+                return new(ExitCode.Success, inlineContent, mimetype, logoFilename, isSidecar: false);
             }
             var clientYaml = new FileInfo(client.Filename);
             var logoPath = new FileInfo(Path.Combine(clientYaml.DirectoryName!, logoFilename));
-            if (!logoPath.Exists) return new(ExitCode.BadRequest, default, default, logoFilename);
-            var content = await File.ReadAllBytesAsync(logoPath.FullName, ct);
-            return new(ExitCode.Success, content, mimetype, logoFilename);
+            if (!logoPath.Exists) return new(ExitCode.BadRequest, default, default, logoFilename, default);
+            var sidecarContent = await File.ReadAllBytesAsync(logoPath.FullName, ct);
+            return new(ExitCode.Success, sidecarContent, mimetype, logoFilename, isSidecar: true);
         }
         catch
         {
-            return new(ExitCode.FatalError, default, default, default);
+            return new(ExitCode.FatalError, default, default, default, default);
         }
     }
 }

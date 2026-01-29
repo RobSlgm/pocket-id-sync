@@ -29,6 +29,9 @@ sealed class SyncCommand : SyncCommandBase
         Yaml = yamlHelper;
     }
 
+    [CliOption(Description = "Id (selector)", Alias = "", Required = false)]
+    public string? Id { get; set; }
+
     [CliOption(Description = "Force synchronization of logos", Alias = "logo", Required = false)]
     public bool ForceLogoSynchronization { get; set; }
 
@@ -68,7 +71,7 @@ sealed class SyncCommand : SyncCommandBase
         {
             return ExitCode.BadRequest;
         }
-        var selector = new SyncItemSelector { Filename = Filename, Name = Name, Namespace = Namespace };
+        var selector = new SyncItemSelector { Filename = Filename, Name = Name, Namespace = Namespace, Id = Id, };
         if (SynchronizationTarget == SynchronizationTarget.PocketID)
         {
             console.Status("Loading local specifications ...");

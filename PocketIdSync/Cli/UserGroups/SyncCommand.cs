@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using DotMake.CommandLine;
 using PocketIdSync.Apis;
@@ -19,17 +20,8 @@ namespace PocketIdSync.Cli.UserGroups;
     ShortFormAutoGenerate = CliNameAutoGenerate.Options,
     Parent = typeof(UserGroupsCommand)
 )]
-sealed class SyncCommand : SyncCommandBase
+sealed class SyncCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFactory HttpClientFactory) : SyncCommandBase
 {
-    private readonly JsonHelper JsonHelper;
-    private readonly YamlHelper Yaml;
-
-    public SyncCommand(JsonHelper jsonHelper, YamlHelper yamlHelper)
-    {
-        JsonHelper = jsonHelper;
-        Yaml = yamlHelper;
-    }
-
     public async Task<int> RunAsync(CliContext context)
     {
         var exitCode = await AnsiConsole.Status()
@@ -84,7 +76,7 @@ sealed class SyncCommand : SyncCommandBase
 
         console.Status("Loading Pocket ID specifications ...");
 
-        var pocketId = new PocketIdClient(PocketIdUri, ApiKey);
+        var pocketId = HttpClientFactory.Connect(PocketIdUri, ApiKey);
         var version = await pocketId.Version.GetLatest(context.CancellationToken);
         if (version.IsSuccessful)
         {

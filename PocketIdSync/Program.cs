@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using DotMake.CommandLine;
@@ -6,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PocketIdSync.Apis;
 using PocketIdSync.Cli;
 using PocketIdSync.Utils;
+using Polly;
 using Spectre.Console;
 
 namespace PocketIdSync;
@@ -30,6 +32,19 @@ class Program
                 services.AddTransient<UserGroupsApi>();
                 services.AddSingleton<JsonHelper>();
                 services.AddSingleton<YamlHelper>();
+                services.AddHttpClient(nameof(PocketIdClient)).AddStandardResilienceHandler(options =>
+                {
+                    options.Retry.ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
+                        .HandleResult(res =>
+                            res.StatusCode == System.Net.HttpStatusCode.UpgradeRequired ||
+                            (int)res.StatusCode >= 500 ||
+                            res.StatusCode == System.Net.HttpStatusCode.RequestTimeout ||
+                            res.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+                        .Handle<HttpRequestException>();
+                    options.Retry.Delay = TimeSpan.FromSeconds(2);
+                    options.Retry.UseJitter = true;
+                    options.Retry.BackoffType = DelayBackoffType.Exponential;
+                });
             });
             exitCode = await DotMake.CommandLine.Cli.RunAsync<RootCommand>(args, cancellationToken: cts.Token);
         }

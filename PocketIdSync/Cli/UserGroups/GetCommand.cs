@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Net.Http;
+using System.Threading.Tasks;
 using DotMake.CommandLine;
 using PocketIdSync.Apis;
 using PocketIdSync.ModelSpecs;
@@ -13,17 +14,8 @@ namespace PocketIdSync.Cli.UserGroups;
     Name = "get",
     Parent = typeof(UserGroupsCommand)
 )]
-sealed class GetCommand : UserGroupsIdentityCommandBase
+sealed class GetCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFactory HttpClientFactory) : UserGroupsIdentityCommandBase
 {
-    private readonly JsonHelper JsonHelper;
-    private readonly YamlHelper Yaml;
-
-    public GetCommand(JsonHelper jsonHelper, YamlHelper yamlHelper)
-    {
-        JsonHelper = jsonHelper;
-        Yaml = yamlHelper;
-    }
-
     [CliOption(Description = "Namespace, used in YAML generation", Alias = "ns", Hidden = true)]
     public string Namespace { get; set; } = "default";
 
@@ -32,7 +24,7 @@ sealed class GetCommand : UserGroupsIdentityCommandBase
 
     public async Task<int> RunAsync(CliContext context)
     {
-        var pocketId = new PocketIdClient(PocketIdUri, ApiKey);
+        var pocketId = HttpClientFactory.Connect(PocketIdUri, ApiKey);
         var findUserGroup = await FindUserGroup(pocketId, UserGroupId, Name, context.CancellationToken);
         if (findUserGroup.ExitCode != ExitCode.Success || string.IsNullOrEmpty(findUserGroup.Id))
         {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Net.Http;
 using System.Threading.Tasks;
 using DotMake.CommandLine;
 using PocketIdSync.Apis;
@@ -19,11 +20,13 @@ sealed class GetCommand : AuthorizationCommandBase
 {
     private readonly JsonHelper JsonHelper;
     private readonly YamlHelper Yaml;
+    private readonly IHttpClientFactory HttpClientFactory;
 
-    public GetCommand(JsonHelper jsonHelper, YamlHelper yamlHelper)
+    public GetCommand(JsonHelper jsonHelper, YamlHelper yamlHelper, IHttpClientFactory httpClientFactory)
     {
         JsonHelper = jsonHelper;
         Yaml = yamlHelper;
+        HttpClientFactory = httpClientFactory;
     }
 
     [CliArgument(Description = "Oidc client Id", Required = true)]
@@ -37,7 +40,7 @@ sealed class GetCommand : AuthorizationCommandBase
 
     public async Task<int> RunAsync(CliContext context)
     {
-        var pocketId = new PocketIdClient(PocketIdUri, ApiKey);
+        var pocketId = HttpClientFactory.Connect(PocketIdUri, ApiKey);
         var client = await pocketId.OidcClients.Id(ClientId).GetAsync(context.CancellationToken);
         if (!client.IsSuccessful)
         {

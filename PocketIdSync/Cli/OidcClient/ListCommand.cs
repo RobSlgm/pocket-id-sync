@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Net.Http;
+using System.Threading.Tasks;
 using DotMake.CommandLine;
 using PocketIdSync.Apis;
 using PocketIdSync.Models;
@@ -13,21 +14,14 @@ namespace PocketIdSync.Cli.OidcClient;
    Name = "list",
    Parent = typeof(OidcClientCommand)
 )]
-sealed class ListCommand : AuthorizationCommandBase
+sealed class ListCommand(JsonHelper JsonHelper, IHttpClientFactory HttpClientFactory) : AuthorizationCommandBase
 {
-    private readonly JsonHelper JsonHelper;
-
-    public ListCommand(JsonHelper jsonHelper)
-    {
-        JsonHelper = jsonHelper;
-    }
-
     [CliOption(Description = "Output format", Alias = "o", AllowedValues = ["json", "console"], Arity = CliArgumentArity.ZeroOrOne)]
     public string Output { get; set; } = "console";
 
     public async Task<int> RunAsync(CliContext context)
     {
-        var pocketId = new PocketIdClient(PocketIdUri, ApiKey);
+        var pocketId = HttpClientFactory.Connect(PocketIdUri, ApiKey);
         var clients = await pocketId.OidcClients.ListAsync(context.CancellationToken);
         if (!clients.IsSuccessful)
         {

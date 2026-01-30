@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Net.Http;
+using System.Threading.Tasks;
 using DotMake.CommandLine;
 using PocketIdSync.Apis;
 using Spectre.Console;
@@ -11,11 +12,11 @@ namespace PocketIdSync.Cli.UserGroups;
     Name = "delete",
     Parent = typeof(UserGroupsCommand)
 )]
-sealed class DeleteCommand : UserGroupsIdentityCommandBase
+sealed class DeleteCommand(IHttpClientFactory HttpClientFactory) : UserGroupsIdentityCommandBase
 {
     public async Task<int> RunAsync(CliContext context)
     {
-        var pocketId = new PocketIdClient(PocketIdUri, ApiKey);
+        var pocketId = HttpClientFactory.Connect(PocketIdUri, ApiKey);
         var findUserGroup = await FindUserGroup(pocketId, UserGroupId, Name, context.CancellationToken);
         if (findUserGroup.ExitCode != ExitCode.Success || string.IsNullOrEmpty(findUserGroup.Id))
         {

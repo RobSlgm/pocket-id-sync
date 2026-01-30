@@ -9,46 +9,15 @@ namespace PocketIdSync.Apis;
 
 sealed class PocketIdClient
 {
-    public IRestClient Api { get; private set; }
-    public string BaseUrl { get; init; }
-    public string ApiKey { private get; init; }
+    public IRestClient Api { get; init; }
+    // public string BaseUrl { get; init; }
+    // public string ApiKey { private get; init; }
 
-    public PocketIdClient(string baseUrl, string apiKey)
+    public PocketIdClient(IRestClient restClient)
     {
-        BaseUrl = baseUrl;
-        ApiKey = apiKey;
-        Api = Login(BaseUrl, ApiKey);
-    }
-
-    public void Refresh()
-    {
-        Api = Login(BaseUrl, ApiKey);
-    }
-
-    public IRestClient Login(string BaseUrl, string ApiKey)
-    {
-        var httpClient = new HttpClient
-        {
-            BaseAddress = new Uri(BaseUrl),
-        };
-        httpClient.DefaultRequestHeaders.Add("X-API-KEY", ApiKey);
-        var options = new RestClientOptions(BaseUrl)
-        {
-            Timeout = TimeSpan.FromSeconds(10),
-            FailOnDeserializationError = true,
-        };
-        var client = new RestClient(
-            httpClient,
-            options,
-            disposeHttpClient: true,
-            configureSerialization: s => s.UseSystemTextJson(new JsonSerializerOptions
-            {
-                TypeInfoResolver = SourceGenerationContext.Default,
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            })
-        );
-
-        return client;
+        // BaseUrl = baseUrl;
+        // ApiKey = apiKey;
+        Api = restClient;
     }
 }
 
@@ -59,5 +28,37 @@ static class PocketIdApi
         public VersionApi Version { get { return new VersionApi(client); } }
         public OidcClientsApi OidcClients { get { return new OidcClientsApi(client); } }
         public UserGroupsApi UserGroups { get { return new UserGroupsApi(client); } }
+    }
+
+    extension(IHttpClientFactory httpClientFactory)
+    {
+        public PocketIdClient Connect(string baseUrl, string apiKey)
+        {
+            var httpClient = httpClientFactory.CreateClient(nameof(PocketIdClient));
+            var restClient = Login(httpClient, baseUrl, apiKey);
+            return new PocketIdClient(restClient);
+        }
+    }
+
+    private static RestClient Login(HttpClient httpClient, string baseUrl, string apiKey)
+    {
+        httpClient.BaseAddress = new Uri(baseUrl);
+        httpClient.DefaultRequestHeaders.Add("X-API-KEY", apiKey);
+        var options = new RestClientOptions(baseUrl)
+        {
+            Timeout = TimeSpan.FromSeconds(10),
+            FailOnDeserializationError = true,
+        };
+        var client = new RestClient(
+            httpClient,
+            options,
+            disposeHttpClient: false,
+            configureSerialization: s => s.UseSystemTextJson(new JsonSerializerOptions
+            {
+                TypeInfoResolver = SourceGenerationContext.Default,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            })
+        );
+        return client;
     }
 }

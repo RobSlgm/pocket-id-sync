@@ -73,9 +73,6 @@ To sync your local configuration to the **Pocket ID** server:
 PocketIdSync oidc-client sync --synchronize PocketID --store-root ./local-config --pocket-id-uri https://idp.example.com --api-key your_secret_key_here --dry-run
 ```
 
-> [!NOTE]
-> Synching even a modest number of clients will propably trigger Pocket ID's rate limiting. You may need to change  DISABLE_RATE_LIMITING to true.
-
 # Resource Definitions
 
 ## UserGroup

@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Net.Http;
 using System.Threading.Tasks;
 using DotMake.CommandLine;
 using PocketIdSync.Apis;
@@ -14,16 +15,8 @@ namespace PocketIdSync.Cli.UserGroups;
     Name = "put",
     Parent = typeof(UserGroupsCommand)
 )]
-sealed class PutCommand : AuthorizationCommandBase
+sealed class PutCommand(JsonHelper JsonHelper, IHttpClientFactory HttpClientFactory) : AuthorizationCommandBase
 {
-    private readonly JsonHelper JsonHelper;
-
-
-    public PutCommand(JsonHelper jsonHelper)
-    {
-        JsonHelper = jsonHelper;
-    }
-
     [CliArgument(Description = "User group configuration file (JSON)", Required = true)]
     public required FileInfo Configuration { get; set; }
 
@@ -43,7 +36,7 @@ sealed class PutCommand : AuthorizationCommandBase
         }
         AnsiConsole.MarkupLine("[green]✓ Local user group configuration read[/]");
         JsonHelper.WriteConsole(data);
-        var pocketId = new PocketIdClient(PocketIdUri, ApiKey);
+        var pocketId = HttpClientFactory.Connect(PocketIdUri, ApiKey);
 
         var clientSource = await pocketId.UserGroups.Id(data.Id).GetAsync(context.CancellationToken);
         AnsiConsole.MarkupLine("[green]✓ Pocket ID user group configuration read[/]");

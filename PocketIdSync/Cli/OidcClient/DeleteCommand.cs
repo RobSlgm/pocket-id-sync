@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Net.Http;
+using System.Threading.Tasks;
 using DotMake.CommandLine;
 using PocketIdSync.Apis;
 using Spectre.Console;
@@ -11,14 +12,14 @@ namespace PocketIdSync.Cli.OidcClient;
     Name = "delete",
     Parent = typeof(OidcClientCommand)
 )]
-sealed class DeleteCommand : AuthorizationCommandBase
+sealed class DeleteCommand(IHttpClientFactory HttpClientFactory) : AuthorizationCommandBase
 {
     [CliArgument(Description = "Oidc client Id", Required = true)]
     public required string ClientId { get; set; }
 
     public async Task<int> RunAsync(CliContext context)
     {
-        var pocketId = new PocketIdClient(PocketIdUri, ApiKey);
+        var pocketId = HttpClientFactory.Connect(PocketIdUri, ApiKey);
         var client = await pocketId.OidcClients.Id(ClientId).DeleteAsync(context.CancellationToken);
         if (!client.IsSuccessful)
         {

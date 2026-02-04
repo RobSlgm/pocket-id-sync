@@ -15,9 +15,9 @@
             "program": "${workspaceFolder}/artifacts/bin/PocketIdSync/debug/PocketIdSync.dll",
             "stopAtEntry": false,
             "launchSettingsProfile": "PocketIdSync",
-            "launchSettingsFilePath": "${workspaceFolder}/.vscode/launchSettings.json",
+            "launchSettingsFilePath": "${workspaceFolder}/PocketIdSync/Properties/launchSettings.json",
             "env": {
-                "ASPNETCORE_ENVIRONMENT": "Development"
+                "ASPNETCORE_ENVIRONMENT": "Development",
             },
             "logging": {
                 "programOutput": true,

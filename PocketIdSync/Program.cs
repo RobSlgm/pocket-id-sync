@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using DotMake.CommandLine;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PocketIdSync.Apis;
 using PocketIdSync.Apis.OidcClients;
@@ -25,6 +26,17 @@ class Program
             cts.Cancel();
             e.Cancel = true;
         };
+        var config = new ConfigurationBuilder()
+            .AddUserSecrets<Program>()
+            .AddEnvironmentVariables()
+            .Build();
+        foreach (var entry in config.AsEnumerable())
+        {
+            if (entry.Value != null)
+            {
+                Environment.SetEnvironmentVariable(entry.Key, entry.Value);
+            }
+        }
         int exitCode;
         try
         {

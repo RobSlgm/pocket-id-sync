@@ -73,6 +73,9 @@ To sync your local configuration to the **Pocket ID** server:
 PocketIdSync oidc-client sync --synchronize PocketID --store-root ./local-config --pocket-id-uri https://idp.example.com --api-key your_secret_key_here --dry-run
 ```
 
+> [!NOTE]
+> The options `--pocket-id-uri` and `--api-key` can also be provided via the `POCKETID_URI` and `POCKETID_SECRET` environment variables. In local development, these can also be managed via .NET User Secrets.
+
 # Resource Definitions
 
 ## UserGroup

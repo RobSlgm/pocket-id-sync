@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using PocketIdSync.Models;
 using RestSharp;
 
-namespace PocketIdSync.Apis;
+namespace PocketIdSync.Apis.OidcClients;
 
 sealed class OidcClientsIdApi(PocketIdClient PocketId, string Id)
 {

@@ -99,7 +99,7 @@ sealed class UserGroupSynchronizer : ISynchronizer<UserGroupSyncItem>
                     var update = await pocketId.UserGroups.Id(userGroup.Id!).PutAsync(userGroup, ct);
                     if (!update.IsSuccessful)
                     {
-                        group.SetError(update.errorMessage);
+                        group.SetError(update.ErrorMessage);
                         exitCode = ExitCode.GeneralError;
                         continue;
                     }
@@ -110,7 +110,7 @@ sealed class UserGroupSynchronizer : ISynchronizer<UserGroupSyncItem>
                     var create = await pocketId.UserGroups.PostAsync(userGroup, ct);
                     if (!create.IsSuccessful)
                     {
-                        group.SetError(create.errorMessage);
+                        group.SetError(create.ErrorMessage);
                         exitCode = ExitCode.GeneralError;
                         continue;
                     }

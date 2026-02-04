@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using RestSharp;
 
-namespace PocketIdSync.Apis;
+namespace PocketIdSync.Apis.OidcClients;
 
 sealed class OidcClientsLogoApi(PocketIdClient PocketId, string Id, LogoThemeMode Theme)
 {

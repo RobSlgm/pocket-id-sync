@@ -1,6 +1,6 @@
 ﻿namespace PocketIdSync.Sync;
 
-public record ConfigStoreFileResult(int ExitCode, byte[]? Content, string? Mimetype, string? Filename, bool isSidecar)
+record ConfigStoreFile(byte[]? Content = default, string? Mimetype = default, string? Filename = default, bool isSidecar = false, int ExitCode = ExitCode.BadRequest)
 {
     public bool IsSuccessful
     {

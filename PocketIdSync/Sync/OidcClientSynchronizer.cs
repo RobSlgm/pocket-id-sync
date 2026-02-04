@@ -139,7 +139,7 @@ sealed class OidcClientSynchronizer : ISynchronizer<OidcClientSyncItem>
                     var update = await pocketId.OidcClients.Id(oidcClient.Id!).PutAsync(oidcClient.ToUpdateRequest(), ct);
                     if (!update.IsSuccessful)
                     {
-                        client.SetError(update.errorMessage);
+                        client.SetError(update.ErrorMessage);
                         exitCode = ExitCode.GeneralError;
                         continue;
                     }
@@ -150,7 +150,7 @@ sealed class OidcClientSynchronizer : ISynchronizer<OidcClientSyncItem>
                     var create = await pocketId.OidcClients.PostAsync(oidcClient.ToCreateRequest(), ct);
                     if (!create.IsSuccessful)
                     {
-                        client.SetError(create.errorMessage);
+                        client.SetError(create.ErrorMessage);
                         exitCode = ExitCode.GeneralError;
                         continue;
                     }
@@ -160,7 +160,7 @@ sealed class OidcClientSynchronizer : ISynchronizer<OidcClientSyncItem>
                         var secret = await pocketId.OidcClients.Id(oidcClient.Id!).SetSecretAsync(ct);
                         if (!secret.IsSuccessful)
                         {
-                            client.SetError($"Secret: {secret.errorMessage}");
+                            client.SetError($"Secret: {secret.ErrorMessage}");
                             exitCode = ExitCode.GeneralError;
                             continue;
                         }
@@ -181,7 +181,7 @@ sealed class OidcClientSynchronizer : ISynchronizer<OidcClientSyncItem>
                 var groups = await pocketId.OidcClients.Id(oidcClient.Id!).PutAllowedUserGroupsAsync(oidcClient.AllowedUserGroups, ct);
                 if (!groups.IsSuccessful)
                 {
-                    client.SetError($"AllowedGroups: {groups.errorMessage}");
+                    client.SetError($"AllowedGroups: {groups.ErrorMessage}");
                     exitCode = ExitCode.GeneralError;
                     continue;
                 }

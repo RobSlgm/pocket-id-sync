@@ -10,13 +10,16 @@
         <TrimmerRemoveSymbols>true</TrimmerRemoveSymbols>
         <RuntimeIdentifiers>win-x64;linux-x64;osx-x64;osx-arm64</RuntimeIdentifiers>
         <JsonSerializerIsReflectionEnabledByDefault>false</JsonSerializerIsReflectionEnabledByDefault>
+        <UserSecretsId>facf0858-cf43-4d1a-8ed4-d1f8cb60cf19</UserSecretsId>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Generator.Equals" Version="3.3.0" />
-        <PackageReference Include="Meziantou.Analyzer" Version="2.0.286" Condition="'$(Configuration)' == 'Debug'">
+        <PackageReference Include="Meziantou.Analyzer" Version="2.0.296" Condition="'$(Configuration)' == 'Debug'">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
+        <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="10.0.2" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="10.0.2" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.2" />
         <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="10.2.0" />
         <PackageReference Include="RestSharp" Version="113.1.0" />

@@ -4,7 +4,7 @@ using RestSharp;
 
 namespace PocketIdSync.Apis;
 
-record ApiResult<T>(bool IsSuccessful, HttpStatusCode? Status = null, T? Data = default, Uri? Uri = null, string? MimeType = null, long? ContentLength = null, string? errorMessage = null) { }
+record ApiResult<T>(bool IsSuccessful, HttpStatusCode? Status = null, T? Data = default, Uri? Uri = null, string? MimeType = null, long? ContentLength = null, string? ErrorMessage = null) { }
 
 
 static class ApiResultExtensions
@@ -18,7 +18,7 @@ static class ApiResultExtensions
 
         public ApiResult<T> Nok<T>(string? msg = null)
         {
-            return new ApiResult<T>(IsSuccessful: false, response.StatusCode, Uri: response.ResponseUri, errorMessage: msg);
+            return new ApiResult<T>(IsSuccessful: false, response.StatusCode, Uri: response.ResponseUri, ErrorMessage: msg);
         }
     }
 }

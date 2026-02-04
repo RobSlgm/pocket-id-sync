@@ -11,7 +11,7 @@ interface IConfigStoreOidcClient
     Task<int> LoadAsync(List<OidcClientSyncItem> clients, bool existingOnly = false, CancellationToken ct = default);
     Task<int> LoadAsync(List<OidcClientSyncItem> clients, string filename, string? ns = null, CancellationToken ct = default);
 
-    Task<ConfigStoreFileResult> ReadLogoAsync(OidcClientSyncItem client, LogoThemeMode theme, CancellationToken ct = default);
+    Task<ConfigStoreFile> ReadLogoAsync(OidcClientSyncItem client, LogoThemeMode theme, CancellationToken ct = default);
 
     /// <summary>
     /// Convert remote definition to local merged configuration

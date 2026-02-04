@@ -184,32 +184,32 @@ sealed class OidcClientFilestore : IConfigStoreOidcClient
         }
     }
 
-    public async Task<ConfigStoreFileResult> ReadLogoAsync(OidcClientSyncItem client, LogoThemeMode theme, CancellationToken ct = default)
+    public async Task<ConfigStoreFile> ReadLogoAsync(OidcClientSyncItem client, LogoThemeMode theme, CancellationToken ct = default)
     {
         try
         {
-            if (string.IsNullOrEmpty(client.Filename)) return new(ExitCode.BadRequest, default, default, default, default);
-            if (client.Local?.Spec is null) return new(ExitCode.BadRequest, default, default, default, default);
+            if (string.IsNullOrEmpty(client.Filename)) return new(ExitCode: ExitCode.BadRequest);
+            if (client.Local?.Spec is null) return new(ExitCode: ExitCode.BadRequest);
             var spec = client.Local.Spec;
 
             var logoFilename = theme == LogoThemeMode.Light ? spec.LogoPath : spec.LogoDarkPath;
-            if (string.IsNullOrEmpty(logoFilename)) return new(ExitCode.BadRequest, default, default, default, default);
+            if (string.IsNullOrEmpty(logoFilename)) return new(ExitCode: ExitCode.BadRequest);
             var mimetype = MimeTypeUtil.ToMimeType(new FileInfo(logoFilename).Extension);
 
             var inlineContent = theme == LogoThemeMode.Light ? spec.LogoContent : spec.LogoDarkContent;
             if (inlineContent is not null && inlineContent.Length > 0)
             {
-                return new(ExitCode.Success, inlineContent, mimetype, logoFilename, isSidecar: false);
+                return new(inlineContent, mimetype, logoFilename, isSidecar: false, ExitCode: ExitCode.Success);
             }
             var clientYaml = new FileInfo(client.Filename);
             var logoPath = new FileInfo(Path.Combine(clientYaml.DirectoryName!, logoFilename));
-            if (!logoPath.Exists) return new(ExitCode.BadRequest, default, default, logoFilename, default);
+            if (!logoPath.Exists) return new(ExitCode: ExitCode.BadRequest, Filename: logoFilename);
             var sidecarContent = await File.ReadAllBytesAsync(logoPath.FullName, ct);
-            return new(ExitCode.Success, sidecarContent, mimetype, logoFilename, isSidecar: true);
+            return new(sidecarContent, mimetype, logoFilename, isSidecar: true, ExitCode: ExitCode.Success);
         }
         catch
         {
-            return new(ExitCode.FatalError, default, default, default, default);
+            return new(ExitCode: ExitCode.FatalError);
         }
     }
 }

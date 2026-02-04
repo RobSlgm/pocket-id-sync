@@ -20,12 +20,12 @@ sealed class DeleteCommand(IHttpClientFactory HttpClientFactory) : Authorization
     public async Task<int> RunAsync(CliContext context)
     {
         var pocketId = HttpClientFactory.Connect(PocketIdUri, ApiKey);
-        var client = await pocketId.OidcClients.Id(ClientId).DeleteAsync(context.CancellationToken);
-        if (!client.IsSuccessful)
+        var result = await pocketId.OidcClients.Id(ClientId).DeleteAsync(context.CancellationToken);
+        if (!result.IsSuccessful)
         {
-            if (client.Status != System.Net.HttpStatusCode.NotFound)
+            if (result.Status != System.Net.HttpStatusCode.NotFound)
             {
-                AnsiConsole.MarkupLine($"[red]✗ Pocket ID call {client.Uri} failed: {client.Status}[/]");
+                AnsiConsole.MarkupLine($"[red]✗ Pocket ID call {result.Uri} failed: {result.Status}[/]");
                 return ExitCode.BadRequest;
             }
             AnsiConsole.MarkupLine($"[Orange1]✓ Pocket ID OidcClient [bold]{ClientId}[/] not found, nothing to do[/]");

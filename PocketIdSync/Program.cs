@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using DotMake.CommandLine;
 using Microsoft.Extensions.DependencyInjection;
 using PocketIdSync.Apis;
+using PocketIdSync.Apis.OidcClients;
+using PocketIdSync.Apis.UserGroup;
 using PocketIdSync.Cli;
 using PocketIdSync.Utils;
 using Polly;

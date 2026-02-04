@@ -16,19 +16,8 @@ namespace PocketIdSync.Cli.OidcClient;
     Name = "get",
     Parent = typeof(OidcClientCommand)
 )]
-sealed class GetCommand : AuthorizationCommandBase
+sealed class GetCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFactory HttpClientFactory) : AuthorizationCommandBase
 {
-    private readonly JsonHelper JsonHelper;
-    private readonly YamlHelper Yaml;
-    private readonly IHttpClientFactory HttpClientFactory;
-
-    public GetCommand(JsonHelper jsonHelper, YamlHelper yamlHelper, IHttpClientFactory httpClientFactory)
-    {
-        JsonHelper = jsonHelper;
-        Yaml = yamlHelper;
-        HttpClientFactory = httpClientFactory;
-    }
-
     [CliArgument(Description = "Oidc client Id", Required = true)]
     public required string ClientId { get; set; }
 

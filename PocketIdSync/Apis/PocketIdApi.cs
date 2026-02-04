@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Net.Http;
 using System.Text.Json;
+using PocketIdSync.Apis.ApiKeys;
+using PocketIdSync.Apis.ApplicationImages;
+using PocketIdSync.Apis.OidcClients;
+using PocketIdSync.Apis.UserGroup;
 using PocketIdSync.Models;
 using RestSharp;
 using RestSharp.Serializers.Json;
@@ -10,13 +14,9 @@ namespace PocketIdSync.Apis;
 sealed class PocketIdClient
 {
     public IRestClient Api { get; init; }
-    // public string BaseUrl { get; init; }
-    // public string ApiKey { private get; init; }
 
     public PocketIdClient(IRestClient restClient)
     {
-        // BaseUrl = baseUrl;
-        // ApiKey = apiKey;
         Api = restClient;
     }
 }
@@ -28,6 +28,8 @@ static class PocketIdApi
         public VersionApi Version { get { return new VersionApi(client); } }
         public OidcClientsApi OidcClients { get { return new OidcClientsApi(client); } }
         public UserGroupsApi UserGroups { get { return new UserGroupsApi(client); } }
+        public ApplicationImagesApi ApplicationImages { get { return new ApplicationImagesApi(client); } }
+        public ApiKeysApi ApiKeys { get { return new ApiKeysApi(client); } }
     }
 
     extension(IHttpClientFactory httpClientFactory)

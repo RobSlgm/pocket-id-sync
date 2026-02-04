@@ -1,0 +1,34 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Pocket ID Sync",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "dotnet: build ${workspaceFolder}\\PocketIdSync\\PocketIdSync.csproj",
+            "console": "internalConsole",
+            "cwd": "${workspaceFolder}/PocketIdSync",
+            "program": "${workspaceFolder}/artifacts/bin/PocketIdSync/debug/PocketIdSync.dll",
+            "stopAtEntry": false,
+            "launchSettingsProfile": "PocketIdSync",
+            "launchSettingsFilePath": "${workspaceFolder}/PocketIdSync/Properties/launchSettings.json",
+            "env": {
+                "ApiKey": "${env:API_KEY}",
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "logging": {
+                "moduleLoad": false,
+                "threadExit": false,
+                "processExit": true,
+                "exceptions": false,
+                "browserStdOut": false,
+                "diagnosticsLog": {
+                    "protocolMessages": false
+                }
+            },
+        }
+    ]
+}

@@ -145,4 +145,4 @@ Currently the local configuration must be stored in an existing directory (optio
 
 ## Disclaimer
 
-This project is **not affiliated** with the official Pocket ID project. It is an independent tool that interacts with the Pocket ID instance via its public API.
+This project is **not affiliated** with the official Pocket ID project. It is an independent tool that interacts with the Pocket ID instance via its [public API](https://pocket-id.org/swagger.yaml).

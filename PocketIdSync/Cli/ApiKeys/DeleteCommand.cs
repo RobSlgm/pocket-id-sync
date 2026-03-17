@@ -11,7 +11,6 @@ namespace PocketIdSync.Cli.ApiKeys;
 [CliCommand(
    Description = "Delete Pocket ID API key",
    Name = "delete",
-   Hidden = true,
    Parent = typeof(ApiKeysCommand)
 )]
 sealed class DeleteCommand(JsonHelper JsonHelper, IHttpClientFactory HttpClientFactory) : ApiKeyIdentificationCommandBase

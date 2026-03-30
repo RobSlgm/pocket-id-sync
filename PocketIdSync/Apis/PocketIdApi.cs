@@ -2,6 +2,7 @@
 using System.Net.Http;
 using System.Text.Json;
 using PocketIdSync.Apis.ApiKeys;
+using PocketIdSync.Apis.ApplicationConfiguration;
 using PocketIdSync.Apis.ApplicationImages;
 using PocketIdSync.Apis.OidcClients;
 using PocketIdSync.Apis.UserGroup;
@@ -29,6 +30,7 @@ static class PocketIdApi
         public OidcClientsApi OidcClients { get { return new OidcClientsApi(client); } }
         public UserGroupsApi UserGroups { get { return new UserGroupsApi(client); } }
         public ApplicationImagesApi ApplicationImages { get { return new ApplicationImagesApi(client); } }
+        public ApplicationConfigurationApi ApplicationConfiguration { get { return new ApplicationConfigurationApi(client); } }
         public ApiKeysApi ApiKeys { get { return new ApiKeysApi(client); } }
     }
 

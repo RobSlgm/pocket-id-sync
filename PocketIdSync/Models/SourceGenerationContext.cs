@@ -1,4 +1,5 @@
 ﻿
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using PocketIdSync.ModelSpecs;
 
@@ -33,4 +34,9 @@ namespace PocketIdSync.Models;
 [JsonSerializable(typeof(ApiKeyResponseDto))]
 [JsonSerializable(typeof(ApiKeyRenewDto))]
 [JsonSerializable(typeof(Paginated<ApiKeyDto>))]
+[JsonSerializable(typeof(AppConfigVariableDto))]
+[JsonSerializable(typeof(AppConfigVariableDto[]))]
+[JsonSerializable(typeof(List<AppConfigVariableDto>))]
+[JsonSerializable(typeof(PublicAppConfigVariableDto))]
+[JsonSerializable(typeof(PublicAppConfigVariableDto[]))]
 sealed partial class SourceGenerationContext : JsonSerializerContext { }

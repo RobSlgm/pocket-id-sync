@@ -13,10 +13,14 @@
         <UserSecretsId>facf0858-cf43-4d1a-8ed4-d1f8cb60cf19</UserSecretsId>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Generator.Equals" Version="3.3.0" />
-        <PackageReference Include="Meziantou.Analyzer" Version="3.0.24" Condition="'$(Configuration)' == 'Debug'">
+        <PackageReference Include="Generator.Equals" Version="4.0.0" />
+        <PackageReference Include="Meziantou.Analyzer" Version="3.0.29" Condition="'$(Configuration)' == 'Debug'">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="Vecc.YamlDotNet.Analyzers.StaticGenerator" Version="16.3.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="10.0.5" />
         <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="10.0.5" />
@@ -27,7 +31,6 @@
         <PackageReference Include="Riok.Mapperly" Version="4.3.1" />
         <PackageReference Include="Spectre.Console" Version="0.54.0" />
         <PackageReference Include="Spectre.Console.Json" Version="0.54.0" />
-        <PackageReference Include="Vecc.YamlDotNet.Analyzers.StaticGenerator" Version="16.3.0" />
         <PackageReference Include="YamlDotNet" Version="16.3.0" />
     </ItemGroup>
 </Project>

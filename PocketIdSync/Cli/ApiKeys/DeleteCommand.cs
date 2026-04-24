@@ -59,7 +59,7 @@ sealed class DeleteCommand(JsonHelper JsonHelper, IHttpClientFactory HttpClientF
             return ExitCode.FatalError;
         }
 
-        AnsiConsole.MarkupLine($"[Green]✓ Key {ApiKeyName??ApiKeyId} removed[/]");
+        AnsiConsole.MarkupLine($"[Green]✓ Key {ApiKeyName ?? ApiKeyId} removed[/]");
         return ExitCode.Success;
     }
 }

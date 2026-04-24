@@ -18,6 +18,7 @@ namespace PocketIdSync.Models;
 [YamlSerializable(typeof(OidcClientMetaDataDto))]
 [YamlSerializable(typeof(UserGroupDto))]
 [YamlSerializable(typeof(OidcClientCredentialsDto))]
+[YamlSerializable(typeof(OidcClientFederatedIdentityDto))]
 // [YamlSerializable(typeof(byte[]))]
 sealed partial class SourceGenerationYamlContext : YamlDotNet.Serialization.StaticContext
 {

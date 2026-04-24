@@ -106,14 +106,14 @@ jobs:
       contents: write # Required to create releases
     steps:
       - name: Download All Artifacts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           path: artifacts
           pattern: binary-*
           merge-multiple: true
 
       - name: Create Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           # If triggered by tag, use that tag. If manual, use the NBGV calculated tag.
           tag_name: ${{ github.ref_type == 'tag' && github.ref_name || needs.build.outputs.version }}

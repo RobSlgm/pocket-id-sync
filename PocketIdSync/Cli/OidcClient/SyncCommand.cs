@@ -86,10 +86,10 @@ sealed class SyncCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFact
         console.Status("Loading Pocket ID specifications ...");
 
         var pocketId = HttpClientFactory.Connect(PocketIdUri, ApiKey);
-        var version = await pocketId.Version.GetLatest(context.CancellationToken);
-        if (version.IsSuccessful)
+        var version = await pocketId.Version.GetAsync(context.CancellationToken);
+        if (version.IsSuccessful && version.Data is not null)
         {
-            AnsiConsole.MarkupLine($"[Gray]Pocket ID version [bold]{version.Data}[/] at {version.Uri}[/]");
+            AnsiConsole.MarkupLine($"[Gray]Pocket ID version [bold]{version.Data.CurrentVersion}[/] at {version.Uri}[/]");
             AnsiConsole.MarkupLine($"[Gray]Using local storage at {StoreRoot.FullName}[/]");
         }
         else

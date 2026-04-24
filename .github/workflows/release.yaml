@@ -37,7 +37,7 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: NBGV
-        uses: dotnet/nbgv@v0.4.2
+        uses: dotnet/nbgv@v0.5.1
         id: nbgv
         with:
           setAllVars: true

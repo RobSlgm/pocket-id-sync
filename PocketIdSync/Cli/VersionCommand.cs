@@ -11,6 +11,7 @@ namespace PocketIdSync.Cli;
 [CliCommand(
    Description = "Show Pocket ID version",
    Name = "version",
+   ShortFormAutoGenerate = CliNameAutoGenerate.Options,
    Parent = typeof(RootCommand)
 )]
 sealed class VersionCommand(JsonHelper JsonHelper, IHttpClientFactory HttpClientFactory) : AuthorizationCommandBase

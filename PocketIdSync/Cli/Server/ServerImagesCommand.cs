@@ -1,14 +1,15 @@
 ﻿using System.Threading.Tasks;
 using DotMake.CommandLine;
 
-namespace PocketIdSync.Cli;
+namespace PocketIdSync.Cli.Server;
 
 [CliCommand(
-    Description = "Pocket API Key management",
+    Description = "Read and write Pocket ID server instance images",
     ShortFormAutoGenerate = CliNameAutoGenerate.Options,
-    Parent = typeof(RootCommand)
+    Name = "image",
+    Parent = typeof(ServerCommand)
 )]
-sealed class ApiKeysCommand
+sealed class ServerImagesCommand
 {
 #pragma warning disable CA1822 // Mark members as static
     public Task<int> RunAsync(CliContext context)

@@ -11,12 +11,12 @@ using PocketIdSync.Sync;
 using PocketIdSync.Utils;
 using Spectre.Console;
 
-namespace PocketIdSync.Cli.ApplicationImages;
+namespace PocketIdSync.Cli.Server.Images;
 
 [CliCommand(
     Description = "Put application images to Pocket ID",
     Name = "put",
-    Parent = typeof(ApplicationImagesCommand)
+    Parent = typeof(ServerImagesCommand)
 )]
 sealed class PutCommand(IHttpClientFactory HttpClientFactory) : AuthorizationCommandBase
 {

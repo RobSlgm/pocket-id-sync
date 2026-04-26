@@ -4,15 +4,15 @@ using DotMake.CommandLine;
 namespace PocketIdSync.Cli;
 
 [CliCommand(
-    Description = "Read and write application images",
+    Description = "Pocket ID server instance",
     ShortFormAutoGenerate = CliNameAutoGenerate.Options,
     Parent = typeof(RootCommand)
 )]
-sealed class ApplicationImagesCommand
+sealed class ServerCommand
 {
-    public RootCommand? RootCommand { get; set; }
-
+#pragma warning disable CA1822 // Mark members as static
     public Task<int> RunAsync(CliContext context)
+#pragma warning restore CA1822 // Mark members as static
     {
         context.ShowHelp();
         return Task.FromResult(ExitCode.Success);

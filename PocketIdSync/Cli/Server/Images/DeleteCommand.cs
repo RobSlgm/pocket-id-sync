@@ -6,12 +6,12 @@ using DotMake.CommandLine;
 using PocketIdSync.Apis;
 using Spectre.Console;
 
-namespace PocketIdSync.Cli.ApplicationImages;
+namespace PocketIdSync.Cli.Server.Images;
 
 [CliCommand(
     Description = "Delete default profile picture from Pocket ID",
     Name = "delete",
-    Parent = typeof(ApplicationImagesCommand)
+    Parent = typeof(ServerImagesCommand)
 )]
 sealed class DeleteCommand(IHttpClientFactory HttpClientFactory) : AuthorizationCommandBase
 {

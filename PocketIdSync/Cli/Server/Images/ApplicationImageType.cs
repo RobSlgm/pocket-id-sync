@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace PocketIdSync.Cli.ApplicationImages;
+namespace PocketIdSync.Cli.Server.Images;
 
 [JsonConverter(typeof(ApplicationImageType))]
 public enum ApplicationImageType

@@ -6,7 +6,7 @@ namespace PocketIdSync.Cli.Server;
 [CliCommand(
     Description = "Read and write Pocket ID server instance configuration",
     ShortFormAutoGenerate = CliNameAutoGenerate.Options,
-    Name ="config",
+    Name = "config",
     Parent = typeof(ServerCommand)
 )]
 sealed class ServerConfigurationCommand

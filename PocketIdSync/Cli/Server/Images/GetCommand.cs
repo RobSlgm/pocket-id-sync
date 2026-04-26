@@ -9,12 +9,12 @@ using PocketIdSync.Apis;
 using PocketIdSync.Utils;
 using Spectre.Console;
 
-namespace PocketIdSync.Cli.ApplicationImages;
+namespace PocketIdSync.Cli.Server.Images;
 
 [CliCommand(
     Description = "Get application images from Pocket ID",
     Name = "get",
-    Parent = typeof(ApplicationImagesCommand)
+    Parent = typeof(ServerImagesCommand)
 )]
 sealed class GetCommand(IHttpClientFactory HttpClientFactory) : AuthorizationCommandBase
 {

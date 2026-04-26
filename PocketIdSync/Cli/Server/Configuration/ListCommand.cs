@@ -8,13 +8,13 @@ using PocketIdSync.Models;
 using PocketIdSync.Utils;
 using Spectre.Console;
 
-namespace PocketIdSync.Cli.ApplicationConfiguration;
+namespace PocketIdSync.Cli.Server.Configuration;
 
 
 [CliCommand(
    Description = "List public application configurations",
    Name = "list",
-   Parent = typeof(ApplicationConfigurationCommand)
+   Parent = typeof(ServerConfigurationCommand)
 )]
 sealed class ListCommand(JsonHelper JsonHelper, IHttpClientFactory HttpClientFactory) : AuthorizationCommandBase
 {

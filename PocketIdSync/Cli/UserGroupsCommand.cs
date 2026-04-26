@@ -10,9 +10,9 @@ namespace PocketIdSync.Cli;
 )]
 sealed class UserGroupsCommand
 {
-    public RootCommand? RootCommand { get; set; }
-
+#pragma warning disable CA1822 // Mark members as static
     public Task<int> RunAsync(CliContext context)
+#pragma warning restore CA1822 // Mark members as static
     {
         context.ShowHelp();
         return Task.FromResult(ExitCode.Success);

@@ -7,14 +7,14 @@ namespace PocketIdSync.Cli;
 sealed class RootCommand
 {
 #pragma warning disable CA1822 // Mark members as static
-    public async Task RunAsync(CliContext context)
+    public Task<int> RunAsync(CliContext context)
 #pragma warning restore CA1822 // Mark members as static
     {
         if (!context.Result.HasArgs)
             context.ShowHelp();
         else
             context.ShowValues();
-        await Task.Delay(0, context.CancellationToken);
+        return Task.FromResult(ExitCode.Success);
     }
 
 }

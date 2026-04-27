@@ -7,6 +7,7 @@ namespace PocketIdSync.Models;
 
 [JsonSourceGenerationOptions(
     WriteIndented = true,
+    UseStringEnumConverter = true,
     PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase
 )]
 [JsonSerializable(typeof(CustomClaimDto))]

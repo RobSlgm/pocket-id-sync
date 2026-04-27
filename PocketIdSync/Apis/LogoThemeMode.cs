@@ -1,8 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿namespace PocketIdSync.Apis;
 
-namespace PocketIdSync.Apis;
-
-[JsonConverter(typeof(LogoThemeMode))]
 enum LogoThemeMode
 {
     Light,

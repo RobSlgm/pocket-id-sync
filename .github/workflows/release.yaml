@@ -4,7 +4,8 @@ on:
   workflow_dispatch:
   push:
     tags:
-      - "v*"
+      - "v[0-9]*.[0-9]*.[0-9]*"     # Pattern for standard: v1.2.3
+      - "v[0-9]*.[0-9]*.[0-9]*-*"   # Pattern for pre-release: v1.2.3-alpha.1
 
 env:
   PROJECT_PATH: "PocketIdSync/PocketIdSync.csproj"
@@ -16,8 +17,8 @@ jobs:
     name: Build ${{ matrix.rid }}
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.nbgv.outputs.NuGetPackageVersion }}
-      isPrerelease: ${{ contains(steps.nbgv.outputs.PrereleaseVersion, '-') }}
+      version: ${{ steps.meta.outputs.SemVer }}
+      isPrerelease: ${{ contains(steps.meta.outputs.PreReleaseLabelWithDash, '-') }}
     strategy:
       matrix:
         rid:
@@ -36,11 +37,12 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: NBGV
-        uses: dotnet/nbgv@v0.5.1
-        id: nbgv
-        with:
-          setAllVars: true
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v4.5.0
+
+      - name: Determine Version
+        id: meta
+        uses: gittools/actions/gitversion/execute@v4.5.0
 
       - name: Publish
         run: |
@@ -49,7 +51,6 @@ jobs:
           -r ${{ matrix.rid }} \
           --self-contained true \
           -p:PublishSingleFile=true \
-          -p:Version=${{ steps.nbgv.outputs.SimpleVersion }} \
           -o ./publish/${{ matrix.rid }}
 
       - name: Prepare Binary
@@ -73,8 +74,7 @@ jobs:
           # 3. Construct source and destination paths
           SRC_FILE="./publish/${{ matrix.rid }}/$PROJECT_FILENAME$SRC_EXT"
 
-          # New Name: MyApp-v1.2.3-linux-x64
-          VERSION="${{ steps.nbgv.outputs.SimpleVersion }}"
+          # New Name: MyApp-linux-x64
           DEST_NAME="${{ env.APP_NAME }}-${{ matrix.rid }}$DEST_EXT"
 
           echo "Moving $SRC_FILE to $DEST_NAME"
@@ -103,7 +103,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Required to create releases
+      contents: write
     steps:
       - name: Download All Artifacts
         uses: actions/download-artifact@v8
@@ -114,10 +114,10 @@ jobs:
 
       - name: Create Release
         uses: softprops/action-gh-release@v3
+        if: github.ref_type == 'tag'  # currently only release on tag
         with:
-          # If triggered by tag, use that tag. If manual, use the NBGV calculated tag.
           tag_name: ${{ github.ref_type == 'tag' && github.ref_name || needs.build.outputs.version }}
-          name: "Release ${{ github.ref_type == 'tag' && github.ref_name || needs.build.outputs.version }}"
+          name: ${{ github.ref_type == 'tag' && github.ref_name || needs.build.outputs.version }}
           files: artifacts/*
           generate_release_notes: true
           draft: false

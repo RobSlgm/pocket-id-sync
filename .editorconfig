@@ -156,3 +156,5 @@ dotnet_diagnostic.MA0048.severity = none
 dotnet_diagnostic.MA0051.severity = none
 # Avoid comparison with bool constant
 dotnet_diagnostic.MA0073.severity = none
+# Make method static (deprecated, use CA1822 instead)
+dotnet_diagnostic.MA0038.severity = none

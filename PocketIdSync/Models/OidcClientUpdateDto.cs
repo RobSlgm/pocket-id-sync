@@ -7,6 +7,11 @@ class OidcClientUpdateDto
     /// </summary>
     public required string Name { get; set; }
 
+    /// <summary>
+    /// max=150
+    /// </summary>
+    public string? Description { get; set; }
+
     public string[] CallbackURLs { get; set; } = [];
 
     public string[] LogoutCallbackURLs { get; set; } = [];
@@ -16,6 +21,10 @@ class OidcClientUpdateDto
     public bool PkceEnabled { get; set; }
 
     public bool RequiresReauthentication { get; set; }
+
+    public bool RequiresPushedAuthorizationRequests { get; set; }
+
+    public bool SkipConsent { get; set; }
 
     public OidcClientCredentialsDto? Credentials { get; set; }
 

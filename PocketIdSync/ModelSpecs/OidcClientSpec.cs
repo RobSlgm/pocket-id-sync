@@ -8,6 +8,7 @@ sealed partial class OidcClientSpec
 {
     public string? Id { get; set; }
     public string? Name { get; set; }
+    public string? Description { get; set; }
 
     [UnorderedEquality(System.StringComparison.OrdinalIgnoreCase)]
     public string[] CallbackURLs { get; set; } = [];
@@ -22,6 +23,10 @@ sealed partial class OidcClientSpec
     public bool? PkceEnabled { get; set; }
 
     public bool? RequiresReauthentication { get; set; }
+
+    public bool? RequiresPushedAuthorizationRequests { get; set; }
+
+    public bool? SkipConsent { get; set; }
 
     public OidcClientCredentialsDto? Credentials { get; set; }
 

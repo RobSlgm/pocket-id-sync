@@ -16,6 +16,8 @@ partial class OidcClientDto
 
     public string? Id { get; set; }
 
+    public string? Description { get; set; }
+
     public bool? IsGroupRestricted { get; set; }
 
     public bool? IsPublic { get; set; }
@@ -30,4 +32,8 @@ partial class OidcClientDto
     public bool? PkceEnabled { get; set; }
 
     public bool? RequiresReauthentication { get; set; }
+
+    public bool? RequiresPushedAuthorizationRequests { get; set; }
+
+    public bool? SkipConsent { get; set; }
 }

@@ -4,11 +4,11 @@ using System.Threading.Tasks;
 using PocketIdSync.Models;
 using RestSharp;
 
-namespace PocketIdSync.Apis.OidcClientApis;
+namespace PocketIdSync.Apis.AppApis;
 
-sealed class OidcClientApisApi(PocketIdClient pocketId)
+sealed class AppApisApi(PocketIdClient pocketId)
 {
-    public OidcClientApisIdApi Id(string id) => new(pocketId, id);
+    public AppApisIdApi Id(string id) => new(pocketId, id);
 
     public async Task<ApiResult<ApiResponseDto[]>> ListAsync(CancellationToken ct)
     {

@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 using PocketIdSync.Models;
 using RestSharp;
 
-namespace PocketIdSync.Apis.OidcClientApis;
+namespace PocketIdSync.Apis.AppApis;
 
-sealed class OidcClientApisIdApi(PocketIdClient PocketId, string Id)
+sealed class AppApisIdApi(PocketIdClient PocketId, string Id)
 {
     // public async Task<ApiResult<OidcClientWithAllowedGroupsDto>> GetAsync(CancellationToken ct)
     // {

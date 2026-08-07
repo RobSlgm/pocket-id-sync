@@ -45,4 +45,9 @@ class OidcClientUpdateDto
     public string? DarkLogoUrl { get; set; }
 
     public bool IsGroupRestricted { get; set; }
+
+    public int? AccessTokenDurationMinutes { get; set; }
+
+    public int? RefreshTokenDurationMinutes { get; set; }
+
 }

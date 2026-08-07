@@ -22,6 +22,8 @@ sealed partial class OidcClientSpec
 
     public bool? PkceEnabled { get; set; }
 
+    public bool? PkceSupported { get; set; }
+
     public bool? RequiresReauthentication { get; set; }
 
     public bool? RequiresPushedAuthorizationRequests { get; set; }
@@ -42,6 +44,10 @@ sealed partial class OidcClientSpec
 
     [IgnoreEquality]
     public byte[]? LogoDarkContent { get; set; }
+
+    public int? AccessTokenDurationMinutes { get; set; }
+
+    public int? RefreshTokenDurationMinutes { get; set; }
 }
 
 sealed class OidcClientKind : KubernetesSpec<OidcClientSpec> { }

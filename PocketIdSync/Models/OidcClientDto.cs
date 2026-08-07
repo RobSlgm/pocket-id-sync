@@ -5,6 +5,8 @@ namespace PocketIdSync.Models;
 [Equatable]
 partial class OidcClientDto
 {
+    public int? AccessTokenDurationMinutes { get; set; }
+
     [UnorderedEquality(System.StringComparison.OrdinalIgnoreCase)]
     public string[] CallbackURLs { get; set; } = [];
 
@@ -30,6 +32,10 @@ partial class OidcClientDto
     public string? Name { get; set; }
 
     public bool? PkceEnabled { get; set; }
+
+    public bool? PkceSupported { get; set; }
+
+    public int? RefreshTokenDurationMinutes { get; set; }
 
     public bool? RequiresReauthentication { get; set; }
 

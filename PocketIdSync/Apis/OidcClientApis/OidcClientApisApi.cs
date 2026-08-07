@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using PocketIdSync.Models;
 using RestSharp;
@@ -9,15 +10,15 @@ sealed class OidcClientApisApi(PocketIdClient pocketId)
 {
     public OidcClientApisIdApi Id(string id) => new(pocketId, id);
 
-    public async Task<ApiResult<OidcClientWithAllowedGroupsCountDto[]>> ListAsync(CancellationToken ct)
+    public async Task<ApiResult<ApiResponseDto[]>> ListAsync(CancellationToken ct)
     {
-        var request = new RestRequest("/api/apis").AddQueryParameter("sort[column]", "name");
-        var response = await pocketId.Api.ExecuteGetAsync<Paginated<OidcClientWithAllowedGroupsCountDto>>(request, ct);
+        var request = new RestRequest("/apis").AddQueryParameter("sort[column]", "name");
+        var response = await pocketId.Api.ExecuteGetAsync<Paginated<ApiResponseDto>>(request, ct);
         if (response.IsSuccessful)
         {
             return response.Ok(response.Data?.Data);
         }
-        return response.Nok<OidcClientWithAllowedGroupsCountDto[]>();
+        return response.Nok<ApiResponseDto[]>();
     }
 
     // public async Task<ApiResult<OidcClientWithAllowedGroupsDto>> PostAsync(OidcClientCreateDto data, CancellationToken ct)

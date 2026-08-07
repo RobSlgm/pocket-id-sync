@@ -43,14 +43,12 @@ sealed class GetCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFacto
         }
         switch (Output)
         {
+            default:
             case "json":
                 JsonHelper.WriteConsole(client.Data);
                 break;
+
             case "yaml":
-                AnsiConsole.WriteLine(Yaml.Write(client.Data.ToKind()));
-                break;
-            default:
-                JsonHelper.WriteConsole(client.Data);
                 AnsiConsole.WriteLine(Yaml.Write(client.Data.ToKind()));
                 break;
         }

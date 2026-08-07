@@ -13,8 +13,8 @@
         <UserSecretsId>facf0858-cf43-4d1a-8ed4-d1f8cb60cf19</UserSecretsId>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Generator.Equals" Version="4.0.1" />
-        <PackageReference Include="Meziantou.Analyzer" Version="3.0.123" Condition="'$(Configuration)' == 'Debug'">
+        <PackageReference Include="Generator.Equals" Version="4.0.2" />
+        <PackageReference Include="Meziantou.Analyzer" Version="3.0.139" Condition="'$(Configuration)' == 'Debug'">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>

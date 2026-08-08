@@ -10,7 +10,7 @@ namespace PocketIdSync.Cli.UserGroups;
 
 
 [CliCommand(
-   Description = "List user groups",
+   Description = "List user groups from Pocket ID",
    Name = "list",
    Parent = typeof(UserGroupsCommand)
 )]

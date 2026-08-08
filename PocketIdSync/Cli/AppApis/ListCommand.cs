@@ -11,7 +11,7 @@ namespace PocketIdSync.Cli.AppApis;
 
 
 [CliCommand(
-   Description = "List application API definitions",
+   Description = "List application API definitions from Pocket ID",
    Name = "list",
    Parent = typeof(AppApisCommand)
 )]

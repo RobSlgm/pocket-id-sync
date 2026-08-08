@@ -4,23 +4,23 @@ using DotMake.CommandLine;
 using PocketIdSync.Apis;
 using Spectre.Console;
 
-namespace PocketIdSync.Cli.OidcClient;
+namespace PocketIdSync.Cli.AppApis;
 
 
 [CliCommand(
-    Description = "Delete client configuration from Pocket ID",
+    Description = "Delete application API definition from Pocket ID",
     Name = "delete",
-    Parent = typeof(OidcClientCommand)
+    Parent = typeof(AppApisCommand)
 )]
 sealed class DeleteCommand(IHttpClientFactory HttpClientFactory) : AuthorizationCommandBase
 {
-    [CliArgument(Description = "Oidc client Id", Required = true)]
-    public required string ClientId { get; set; }
+    [CliArgument(Description = "Application API Id", Required = true)]
+    public required string ApiId { get; set; }
 
     public async Task<int> RunAsync(CliContext context)
     {
         var pocketId = HttpClientFactory.Connect(PocketIdUri, ApiKey);
-        var result = await pocketId.OidcClients.Id(ClientId).DeleteAsync(context.CancellationToken);
+        var result = await pocketId.AppApis.Id(ApiId).DeleteAsync(context.CancellationToken);
         if (!result.IsSuccessful)
         {
             if (result.Status != System.Net.HttpStatusCode.NotFound)
@@ -28,10 +28,10 @@ sealed class DeleteCommand(IHttpClientFactory HttpClientFactory) : Authorization
                 AnsiConsole.MarkupLine($"[red]✗ Pocket ID call {result.Uri} failed: {result.Status}[/]");
                 return ExitCode.BadRequest;
             }
-            AnsiConsole.MarkupLine($"[Orange1]✓ Pocket ID OidcClient [bold]{ClientId}[/] not found, nothing to do[/]");
+            AnsiConsole.MarkupLine($"[Orange1]✓ Pocket ID application API [bold]{ApiId}[/] not found, nothing to do[/]");
             return ExitCode.Success;
         }
-        AnsiConsole.MarkupLine($"[green]✓ Pocket ID OidcClient [bold]{ClientId}[/] deleted[/]");
+        AnsiConsole.MarkupLine($"[green]✓ Pocket ID application API [bold]{ApiId}[/] deleted[/]");
         return ExitCode.Success;
     }
 }

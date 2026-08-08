@@ -10,7 +10,7 @@ namespace PocketIdSync.Cli.OidcClient;
 
 
 [CliCommand(
-   Description = "List Oidc client configurations",
+   Description = "List Oidc client configurations from Pocket ID",
    Name = "list",
    Parent = typeof(OidcClientCommand)
 )]

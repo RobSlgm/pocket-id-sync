@@ -32,6 +32,8 @@ namespace PocketIdSync.Models;
 [JsonSerializable(typeof(VersionInfoDto))]
 [JsonSerializable(typeof(ApiResponseDto))]
 [JsonSerializable(typeof(Paginated<ApiResponseDto>))]
+[JsonSerializable(typeof(ApiCreateDto))]
+[JsonSerializable(typeof(ApiUpdateDto))]
 [JsonSerializable(typeof(ApiPermissionResponseDto))]
 [JsonSerializable(typeof(ApiKeyDto))]
 [JsonSerializable(typeof(ApiKeyCreateDto))]

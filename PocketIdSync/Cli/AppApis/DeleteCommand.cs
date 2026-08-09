@@ -12,14 +12,17 @@ namespace PocketIdSync.Cli.AppApis;
     Name = "delete",
     Parent = typeof(AppApisCommand)
 )]
-sealed class DeleteCommand(IHttpClientFactory HttpClientFactory) : AuthorizationCommandBase
+sealed class DeleteCommand(IHttpClientFactory HttpClientFactory) : AppApiIdentityCommandBase
 {
-    [CliArgument(Description = "Application API Id", Required = true)]
-    public required string ApiId { get; set; }
-
     public async Task<int> RunAsync(CliContext context)
     {
         var pocketId = HttpClientFactory.Connect(PocketIdUri, ApiKey);
+        var findUserGroup = await FindAppApi(pocketId, ApiId, Resource, context.CancellationToken);
+        if (findUserGroup.ExitCode != ExitCode.Success || string.IsNullOrEmpty(findUserGroup.Id))
+        {
+            return findUserGroup.ExitCode;
+        }
+        ApiId = findUserGroup.Id;
         var result = await pocketId.AppApis.Id(ApiId).DeleteAsync(context.CancellationToken);
         if (!result.IsSuccessful)
         {

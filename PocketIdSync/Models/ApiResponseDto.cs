@@ -6,8 +6,10 @@ namespace PocketIdSync.Models;
 [Equatable]
 partial class ApiResponseDto
 {
+    [IgnoreEquality]
     public DateTimeOffset? CreatedAt { get; set; }
 
+    [IgnoreEquality]
     public string? Id { get; set; }
 
     public string? Name { get; set; }

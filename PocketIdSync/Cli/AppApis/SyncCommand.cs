@@ -61,10 +61,10 @@ sealed class SyncCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFact
             var loadLocalResponse = await sync.LoadConfiguration(selector, context.CancellationToken);
             if (Verbose)
             {
-                foreach (var group in sync.Items)
+                foreach (var api in sync.Items)
                 {
-                    AnsiConsole.MarkupLine($"[green]✓ Local specification for [bold]UserGroup {group.Namespace}/{group.Name}[/] read from {Path.GetRelativePath(StoreRoot.FullName, group.Filename!)}[/]");
-                    AnsiConsole.WriteLine(Yaml.Write(group.Local));
+                    AnsiConsole.MarkupLine($"[green]✓ Local specification for [bold]application API {api.Namespace}/{api.Name}[/] read from {Path.GetRelativePath(StoreRoot.FullName, api.Filename!)}[/]");
+                    AnsiConsole.WriteLine(Yaml.Write(api.Local));
                 }
             }
             if (loadLocalResponse != ExitCode.Success || sync.Items.Count == 0)
@@ -89,28 +89,28 @@ sealed class SyncCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFact
             return ExitCode.FatalError;
         }
 
-        var userGroupResult = await sync.CombineAsync(pocketId, SynchronizationTarget, selector, context.CancellationToken);
-        if (userGroupResult.ExitCode != ExitCode.Success)
+        var appApiResult = await sync.CombineAsync(pocketId, SynchronizationTarget, selector, context.CancellationToken);
+        if (appApiResult.ExitCode != ExitCode.Success)
         {
-            switch (userGroupResult.ExitCode)
+            switch (appApiResult.ExitCode)
             {
                 case ExitCode.FatalError:
-                    AnsiConsole.MarkupLine($"[red]✗ Pocket ID UserGroup [bold]{userGroupResult.Client?.Id}[/] failed to read: {userGroupResult.ErrorMessage}[/]");
+                    AnsiConsole.MarkupLine($"[red]✗ Pocket ID application API [bold]{appApiResult.Client?.Id}[/] failed to read: {appApiResult.ErrorMessage}[/]");
                     break;
 
                 case ExitCode.BadRequest:
-                    AnsiConsole.MarkupLine($"[red]✗ Pocket ID UserGroup [bold]{userGroupResult.Client?.Id}[/] is invalid: {userGroupResult.ErrorMessage}[/]");
+                    AnsiConsole.MarkupLine($"[red]✗ Pocket ID application API [bold]{appApiResult.Client?.Id}[/] is invalid: {appApiResult.ErrorMessage}[/]");
                     break;
 
                 default:
-                    AnsiConsole.MarkupLine($"[red]✗ Pocket ID UserGroup [bold]{userGroupResult.Client?.Id}[/] failed: {userGroupResult.ErrorMessage}[/]");
+                    AnsiConsole.MarkupLine($"[red]✗ Pocket ID application API [bold]{appApiResult.Client?.Id}[/] failed: {appApiResult.ErrorMessage}[/]");
                     break;
             }
-            return userGroupResult.ExitCode;
+            return appApiResult.ExitCode;
         }
         if (Verbose)
         {
-            AnsiConsole.MarkupLine($"Pocket ID {sync.Items.Count} UserGroup(s) loaded");
+            AnsiConsole.MarkupLine($"Pocket ID {sync.Items.Count} application API(s) loaded");
         }
 
         if (SynchronizationTarget == SynchronizationTarget.Configuration)
@@ -124,7 +124,7 @@ sealed class SyncCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFact
             }
         }
 
-        ShowGroups(sync.Items);
+        ShowApplicationApis(sync.Items);
 
         if (DryRun)
         {
@@ -145,85 +145,85 @@ sealed class SyncCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFact
         return syncResult;
     }
 
-    private void ShowSyncResults(List<AppApiSyncItem> clients)
+    private void ShowSyncResults(List<AppApiSyncItem> apis)
     {
-        foreach (var client in clients.Where(c => c.IsRemoteEqualLocal == false || c.IsLocalDirty == true).OrderBy(c => c.Id, StringComparer.OrdinalIgnoreCase))
+        foreach (var api in apis.Where(c => c.IsRemoteEqualLocal == false || c.IsLocalDirty == true).OrderBy(c => c.Id, StringComparer.OrdinalIgnoreCase))
         {
             if (SynchronizationTarget == SynchronizationTarget.PocketID)
             {
-                if (client.RemoteMerged is not null && client.HasError == false)
+                if (api.RemoteMerged is not null && api.HasError == false)
                 {
-                    AnsiConsole.MarkupLine($"[green1]✓ Pocket ID UserGroup [bold]{client.Name}[/] id({client.Id!}) synchronized[/]");
+                    AnsiConsole.MarkupLine($"[green1]✓ Pocket ID application API [bold]{api.Name}[/] id({api.Id!}) synchronized[/]");
                     if (Verbose)
                     {
-                        JsonHelper.WriteConsole(client.RemoteMerged);
+                        JsonHelper.WriteConsole(api.RemoteMerged);
                     }
                 }
                 else
                 {
-                    AnsiConsole.MarkupLine($"✗[red] Pocket ID UserGroup [bold]{client.Name}[/] id({client.Id!}) failed to {(client.Remote is not null ? "update" : "create")}: {Markup.Escape(client.Message ?? "")}[/]");
+                    AnsiConsole.MarkupLine($"✗[red] Pocket ID application API [bold]{api.Name}[/] id({api.Id!}) failed to {(api.Remote is not null ? "update" : "create")}: {Markup.Escape(api.Message ?? "")}[/]");
                     if (Verbose)
                     {
-                        AnsiConsole.Markup($"# {Path.GetRelativePath(StoreRoot.FullName, client.Filename!)}[/]\n{Yaml.Write(client.Local)}\n");
+                        AnsiConsole.Markup($"# {Path.GetRelativePath(StoreRoot.FullName, api.Filename!)}[/]\n{Yaml.Write(api.Local)}\n");
                     }
                 }
             }
             if (SynchronizationTarget == SynchronizationTarget.Configuration)
             {
-                if (client.LocalMerged is not null && client.HasError == false)
+                if (api.LocalMerged is not null && api.HasError == false)
                 {
-                    AnsiConsole.MarkupLine($"[green1]✓ Pocket ID UserGroup [bold]{client.Name}[/] id({client.Id!}) {(client.Local is not null ? "updated" : "created")} specification at {Path.GetRelativePath(StoreRoot.FullName, client.Filename!)}[/]");
+                    AnsiConsole.MarkupLine($"[green1]✓ Pocket ID application API [bold]{api.Name}[/] id({api.Id!}) {(api.Local is not null ? "updated" : "created")} specification at {Path.GetRelativePath(StoreRoot.FullName, api.Filename!)}[/]");
                     if (Verbose)
                     {
-                        JsonHelper.WriteConsole(client.RemoteMerged);
+                        JsonHelper.WriteConsole(api.RemoteMerged);
                     }
                 }
                 else
                 {
-                    AnsiConsole.MarkupLine($"[red]✗ Pocket ID UserGroup [bold]{client.Name}[/] id({client.Id!}) failed to {(client.Local is not null ? "update" : "create")} specification at {Path.GetRelativePath(StoreRoot.FullName, client.Filename!)}: {Markup.Escape(client.Message ?? "")}[/]");
+                    AnsiConsole.MarkupLine($"[red]✗ Pocket ID application API [bold]{api.Name}[/] id({api.Id!}) failed to {(api.Local is not null ? "update" : "create")} specification at {Path.GetRelativePath(StoreRoot.FullName, api.Filename!)}: {Markup.Escape(api.Message ?? "")}[/]");
                     if (Verbose)
                     {
-                        AnsiConsole.Markup($"# {Path.GetRelativePath(StoreRoot.FullName, client.Filename!)}[/]\n{Yaml.Write(client.Local)}\n");
+                        AnsiConsole.Markup($"# {Path.GetRelativePath(StoreRoot.FullName, api.Filename!)}[/]\n{Yaml.Write(api.Local)}\n");
                     }
                 }
             }
         }
     }
 
-    private void ShowGroups(List<AppApiSyncItem> clients)
+    private void ShowApplicationApis(List<AppApiSyncItem> apis)
     {
-        foreach (var client in clients.OrderBy(c => c.Id, StringComparer.OrdinalIgnoreCase))
+        foreach (var api in apis.OrderBy(c => c.Id, StringComparer.OrdinalIgnoreCase))
         {
-            if (client.HasError == true)
+            if (api.HasError == true)
             {
-                AnsiConsole.MarkupLine($"[red]✗ Pocket ID UserGroup [bold]{client.Name}[/] id({client.Id!}) has errors[/]");
+                AnsiConsole.MarkupLine($"[red]✗ Pocket ID application API [bold]{api.Name}[/] id({api.Id!}) has errors[/]");
 
             }
-            else if (client.Remote is null)
+            else if (api.Remote is null)
             {
-                AnsiConsole.MarkupLine($"[Orange1]✗ Pocket ID UserGroup [bold]{client.Name}[/] id({client.Id!}) doesn't exist[/]");
+                AnsiConsole.MarkupLine($"[Orange1]✗ Pocket ID application API [bold]{api.Name}[/] id({api.Id!}) doesn't exist[/]");
             }
             else
             {
-                if (client.IsRemoteEqualLocal)
+                if (api.IsRemoteEqualLocal)
                 {
-                    if (client.IsLocalDirty)
+                    if (api.IsLocalDirty)
                     {
-                        AnsiConsole.MarkupLine($"[Orange3]✓ Pocket ID UserGroup [bold]{client.Name}[/] id({client.Id!}) is unchanged (sync forced)[/]");
+                        AnsiConsole.MarkupLine($"[Orange3]✓ Pocket ID application API [bold]{api.Name}[/] id({api.Id!}) is unchanged (sync forced)[/]");
                     }
                     else
                     {
-                        AnsiConsole.MarkupLine($"[green]✓ Pocket ID UserGroup [bold]{client.Name}[/] id({client.Id!}) is unchanged[/]");
+                        AnsiConsole.MarkupLine($"[green]✓ Pocket ID application API [bold]{api.Name}[/] id({api.Id!}) is unchanged[/]");
                     }
                 }
                 else
                 {
-                    if (client.Local is not null)
+                    if (api.Local is not null)
                     {
-                        AnsiConsole.MarkupLine($"[Orange3]✗ Pocket ID UserGroup [bold]{client.Name}[/] id({client.Id!}) is changed[/]");
+                        AnsiConsole.MarkupLine($"[Orange3]✗ Pocket ID application API [bold]{api.Name}[/] id({api.Id!}) is changed[/]");
                         if (Verbose)
                         {
-                            foreach (var diff in AppApiSpec.EqualityComparer.Default.Inequalities(client.Local.Spec, client.Remote.ToKind().Spec))
+                            foreach (var diff in AppApiSpec.EqualityComparer.Default.Inequalities(api.Local.Spec, api.Remote.ToKind().Spec))
                             {
                                 AnsiConsole.MarkupLine($" - Difference: [Orange3]{AnsiMarkup.Escape(diff.ToString())}[/]");
                             }
@@ -231,18 +231,18 @@ sealed class SyncCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFact
                     }
                     else
                     {
-                        AnsiConsole.MarkupLine($"[Orange1]✗ Pocket ID UserGroup [bold]{client.Name}[/] id({client.Id!}) doesn't exist[/]");
+                        AnsiConsole.MarkupLine($"[Orange1]✗ Pocket ID application API [bold]{api.Name}[/] id({api.Id!}) doesn't exist[/]");
                     }
                     // AnsiConsole.MarkupLine($"L{client.Local is not null} - {client.LocalMerged is not null}, R{client.Remote is not null} - {client.RemoteMerged is not null}, {client.IsLocalDirty}:{client.IsRemoteEqualLocal}");
                     if (Verbose)
                     {
-                        if (client.Local is not null)
+                        if (api.Local is not null)
                         {
-                            AnsiConsole.MarkupLine($"[gray bold]Local:[/]\n{Yaml.Write(client.Local)}\n");
+                            AnsiConsole.MarkupLine($"[gray bold]Local:[/]\n{Yaml.Write(api.Local)}\n");
                         }
-                        if (client.Remote is not null)
+                        if (api.Remote is not null)
                         {
-                            AnsiConsole.MarkupLine($"[gray bold]Remote[/]:\n{Yaml.Write(client.Remote.ToKind(Namespace))}");
+                            AnsiConsole.MarkupLine($"[gray bold]Remote[/]:\n{Yaml.Write(api.Remote.ToKind(Namespace))}");
                         }
                     }
                 }

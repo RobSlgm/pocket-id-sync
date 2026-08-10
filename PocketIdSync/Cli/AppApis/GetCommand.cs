@@ -25,19 +25,19 @@ sealed class GetCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFacto
     public async Task<int> RunAsync(CliContext context)
     {
         var pocketId = HttpClientFactory.Connect(PocketIdUri, ApiKey);
-        var findUserGroup = await FindAppApi(pocketId, ApiId, Resource, context.CancellationToken);
-        if (findUserGroup.ExitCode != ExitCode.Success || string.IsNullOrEmpty(findUserGroup.Id))
+        var findAppApi = await FindAppApi(pocketId, ApiId, Resource, context.CancellationToken);
+        if (findAppApi.ExitCode != ExitCode.Success || string.IsNullOrEmpty(findAppApi.Id))
         {
-            return findUserGroup.ExitCode;
+            return findAppApi.ExitCode;
         }
-        ApiId = findUserGroup.Id;
-        var client = await pocketId.AppApis.Id(ApiId).GetAsync(context.CancellationToken);
-        if (!client.IsSuccessful)
+        ApiId = findAppApi.Id;
+        var api = await pocketId.AppApis.Id(ApiId).GetAsync(context.CancellationToken);
+        if (!api.IsSuccessful)
         {
-            AnsiConsole.MarkupLine($"[red]✗ Pocket ID call {client.Uri} failed: {client.Status}[/]");
+            AnsiConsole.MarkupLine($"[red]✗ Pocket ID call {api.Uri} failed: {api.Status}[/]");
             return ExitCode.BadRequest;
         }
-        if (client.Data is null)
+        if (api.Data is null)
         {
             AnsiConsole.MarkupLine($"[red]✗ Pocket ID application API definition [bold]{ApiId}[/] not found[/]");
             return ExitCode.BadRequest;
@@ -46,11 +46,11 @@ sealed class GetCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFacto
         {
             default:
             case "json":
-                JsonHelper.WriteConsole(client.Data);
+                JsonHelper.WriteConsole(api.Data);
                 break;
 
             case "yaml":
-                AnsiConsole.WriteLine(Yaml.Write(client.Data.ToKind()));
+                AnsiConsole.WriteLine(Yaml.Write(api.Data.ToKind()));
                 break;
         }
 

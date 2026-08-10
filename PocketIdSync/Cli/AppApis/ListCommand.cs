@@ -23,20 +23,21 @@ sealed class ListCommand(JsonHelper JsonHelper, IHttpClientFactory HttpClientFac
     public async Task<int> RunAsync(CliContext context)
     {
         var pocketId = HttpClientFactory.Connect(PocketIdUri, ApiKey);
-        var clients = await pocketId.AppApis.ListAsync(context.CancellationToken);
-        if (!clients.IsSuccessful)
+        var apis = await pocketId.AppApis.ListAsync(context.CancellationToken);
+        if (!apis.IsSuccessful)
         {
-            AnsiConsole.MarkupLine($"[red]✗ Pocket ID call {clients.Uri} failed: {clients.Status}[/]");
+            AnsiConsole.MarkupLine($"[red]✗ Pocket ID call {apis.Uri} failed: {apis.Status}[/]");
             return ExitCode.BadRequest;
         }
         switch (Output)
         {
             // e.g. for oidc-client list -o json | jq '[.[] | {id: .id, name: .name}]'
             case "json":
-                JsonHelper.WriteConsole(clients.Data);
+                JsonHelper.WriteConsole(apis.Data);
                 break;
+
             default:
-                var table = BuildTable(clients.Data);
+                var table = BuildTable(apis.Data);
                 AnsiConsole.Write(table);
                 break;
         }

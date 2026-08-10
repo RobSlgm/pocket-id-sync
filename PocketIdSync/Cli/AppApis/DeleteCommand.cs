@@ -17,12 +17,12 @@ sealed class DeleteCommand(IHttpClientFactory HttpClientFactory) : AppApiIdentit
     public async Task<int> RunAsync(CliContext context)
     {
         var pocketId = HttpClientFactory.Connect(PocketIdUri, ApiKey);
-        var findUserGroup = await FindAppApi(pocketId, ApiId, Resource, context.CancellationToken);
-        if (findUserGroup.ExitCode != ExitCode.Success || string.IsNullOrEmpty(findUserGroup.Id))
+        var findAppApi = await FindAppApi(pocketId, ApiId, Resource, context.CancellationToken);
+        if (findAppApi.ExitCode != ExitCode.Success || string.IsNullOrEmpty(findAppApi.Id))
         {
-            return findUserGroup.ExitCode;
+            return findAppApi.ExitCode;
         }
-        ApiId = findUserGroup.Id;
+        ApiId = findAppApi.Id;
         var result = await pocketId.AppApis.Id(ApiId).DeleteAsync(context.CancellationToken);
         if (!result.IsSuccessful)
         {

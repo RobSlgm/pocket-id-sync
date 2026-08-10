@@ -1,5 +1,6 @@
 ﻿using Generator.Equals;
 using PocketIdSync.Models;
+using PocketIdSync.Utils;
 
 namespace PocketIdSync.ModelSpecs;
 
@@ -8,6 +9,8 @@ sealed partial class OidcClientSpec
 {
     public string? Id { get; set; }
     public string? Name { get; set; }
+
+    [CustomEquality(typeof(StringEmptyEqualityComparer))]
     public string? Description { get; set; }
 
     [UnorderedEquality(System.StringComparison.OrdinalIgnoreCase)]

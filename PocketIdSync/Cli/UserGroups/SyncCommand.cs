@@ -221,6 +221,13 @@ sealed class SyncCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFact
                     if (client.Local is not null)
                     {
                         AnsiConsole.MarkupLine($"[Orange3]✗ Pocket ID UserGroup [bold]{client.Name}[/] id({client.Id!}) is changed[/]");
+                        if (Verbose)
+                        {
+                            foreach (var diff in UserGroupSpec.EqualityComparer.Default.Inequalities(client.Local.Spec, client.Remote.ToKind().Spec))
+                            {
+                                AnsiConsole.MarkupLine($" - Difference: [Orange3]{AnsiMarkup.Escape(diff.ToString())}[/]");
+                            }
+                        }
                     }
                     else
                     {

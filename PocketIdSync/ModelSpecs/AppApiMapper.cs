@@ -7,10 +7,12 @@ namespace PocketIdSync.ModelSpecs;
 static partial class AppApiMapper
 {
     [MapperIgnoreSource(nameof(ApiResponseDto.CreatedAt))]
+    [MapperIgnoreSource(nameof(ApiResponseDto.Id))]
     private static partial AppApiSpec Map(ApiResponseDto data);
 
     // private static partial ApiResponseDto MapInto(AppApiSpec data);
     [MapperIgnoreTarget(nameof(ApiResponseDto.CreatedAt))]
+    [MapperIgnoreTarget(nameof(ApiResponseDto.Id))]
     private static partial ApiResponseDto Map(AppApiSpec data);
 
     public static AppApiKind ToKind(this ApiResponseDto data, string? ns = null) => ToKind(Map(data), ns);

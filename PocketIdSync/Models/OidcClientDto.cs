@@ -33,6 +33,7 @@ partial class OidcClientDto
 
     public bool? PkceEnabled { get; set; }
 
+    [IgnoreEquality]
     public bool? PkceSupported { get; set; }
 
     public int? RefreshTokenDurationMinutes { get; set; }

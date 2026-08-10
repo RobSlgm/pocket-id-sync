@@ -31,7 +31,8 @@ static partial class AppApiMapper
 
     [MapperIgnoreTarget(nameof(ApiPermissionResponseDto.Id))]
     private static partial ApiPermissionResponseDto Map(ApiPermissionInputDto data);
-    private static partial ApiResponseDto MapInto(ApiResponseDto data);
+
+    // private static partial ApiResponseDto MapInto(ApiResponseDto data);
 
     public static ApiUpdateDto ToUpdateRequest(this ApiResponseDto data)
     {
@@ -66,11 +67,11 @@ static partial class AppApiMapper
     {
         if (remote is not null)
         {
-            var copy = MapInto(remote);
-            copy.Resource = spec.Resource;
-            copy.Name = spec.Name;
-            // copy.Permissions = [..spec.Permissions ?? []];
-            return copy;
+            // var copy = MapInto(remote);
+            // copy.Resource = spec.Resource;
+            // copy.Name = spec.Name;
+            // // copy.Permissions = [..spec.Permissions ?? []];
+            // return copy;
         }
         var data = Map(spec);
         return data;

@@ -164,7 +164,7 @@ sealed class SyncCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFact
                     AnsiConsole.MarkupLine($"✗[red] Pocket ID application API [bold]{api.Name}[/] id({api.Id!}) failed to {(api.Remote is not null ? "update" : "create")}: {Markup.Escape(api.Message ?? "")}[/]");
                     if (Verbose)
                     {
-                        AnsiConsole.Markup($"# {Path.GetRelativePath(StoreRoot.FullName, api.Filename!)}[/]\n{Yaml.Write(api.Local)}\n");
+                        AnsiConsole.Markup($"# [bold]{Path.GetRelativePath(StoreRoot.FullName, api.Filename!)}[/]\n{Markup.Escape(Yaml.Write(api.Local))}\n");
                     }
                 }
             }
@@ -183,7 +183,7 @@ sealed class SyncCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFact
                     AnsiConsole.MarkupLine($"[red]✗ Pocket ID application API [bold]{api.Name}[/] id({api.Id!}) failed to {(api.Local is not null ? "update" : "create")} specification at {Path.GetRelativePath(StoreRoot.FullName, api.Filename!)}: {Markup.Escape(api.Message ?? "")}[/]");
                     if (Verbose)
                     {
-                        AnsiConsole.Markup($"# {Path.GetRelativePath(StoreRoot.FullName, api.Filename!)}[/]\n{Yaml.Write(api.Local)}\n");
+                        AnsiConsole.Markup($"# [bold]{Path.GetRelativePath(StoreRoot.FullName, api.Filename!)}[/]\n{Markup.Escape(Yaml.Write(api.Local))}\n");
                     }
                 }
             }
@@ -223,7 +223,7 @@ sealed class SyncCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFact
                         AnsiConsole.MarkupLine($"[Orange3]✗ Pocket ID application API [bold]{api.Name}[/] id({api.Id!}) is changed[/]");
                         if (Verbose)
                         {
-                            foreach (var diff in AppApiSpec.EqualityComparer.Default.Inequalities(api.Local.Spec, api.Remote.ToKind().Spec))
+                            foreach (var diff in AppApiSpec.EqualityComparer.Default.Inequalities(api.Local.Spec, api.Remote.ToKind(Namespace).Spec))
                             {
                                 AnsiConsole.MarkupLine($" - Difference: [Orange3]{AnsiMarkup.Escape(diff.ToString())}[/]");
                             }

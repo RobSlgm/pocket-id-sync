@@ -4,7 +4,7 @@ using Generator.Equals;
 namespace PocketIdSync.Models;
 
 [Equatable]
-partial class ApiResponseDto
+sealed partial class ApiResponseDto
 {
     [IgnoreEquality]
     public DateTimeOffset? CreatedAt { get; set; }

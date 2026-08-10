@@ -45,27 +45,15 @@ sealed class AppApisIdApi(PocketIdClient PocketId, string Id)
         return response.Nok<int>(response.Content);
     }
 
-    // public async Task<ApiResult<ApiResponseDto>> PutAllowedUserGroupsAsync(UserGroupMinimalDto[] data, CancellationToken ct)
-    // {
-    //     var body = new UpdateAllowedUserGroupsDto { UserGroupIds = data.Select(g => g.Id).ToArray()! };
-    //     var request = new RestRequest("/oidc/clients/{id}/allowed-user-groups").AddUrlSegment("id", Id).AddBody(body);
-    //     var response = await PocketId.Api.ExecutePutAsync<ApiResponseDto>(request, ct);
-    //     if (response.IsSuccessful)
-    //     {
-    //         return response.Ok(response.Data);
-    //     }
-    //     return response.Nok<ApiResponseDto>(response.Content);
-    // }
-
-    // public async Task<ApiResult<SecretDto>> SetSecretAsync(CancellationToken ct)
-    // {
-    //     // var body = new UpdateAllowedUserGroupsDto { UserGroupIds = data.Select(g => g.Id).ToArray()! };
-    //     var request = new RestRequest("/oidc/clients/{id}/secret").AddUrlSegment("id", Id);
-    //     var response = await PocketId.Api.ExecutePostAsync<SecretDto>(request, ct);
-    //     if (response.IsSuccessful)
-    //     {
-    //         return response.Ok(response.Data);
-    //     }
-    //     return response.Nok<SecretDto>(response.Content);
-    // }
+    public async Task<ApiResult<ApiResponseDto>> PutPermissions(ApiPermissionInputDto[] data, CancellationToken ct)
+    {
+        var body = new ApiPermissionsUpdateDto { Permissions = [.. data], };
+        var request = new RestRequest("/apis/{id}/permissions").AddUrlSegment("id", Id).AddBody(body);
+        var response = await PocketId.Api.ExecutePutAsync<ApiResponseDto>(request, ct);
+        if (response.IsSuccessful)
+        {
+            return response.Ok(response.Data);
+        }
+        return response.Nok<ApiResponseDto>(response.Content);
+    }
 }

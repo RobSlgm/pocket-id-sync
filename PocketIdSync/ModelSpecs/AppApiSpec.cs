@@ -12,7 +12,7 @@ sealed partial class AppApiSpec
     public string? Name { get; set; }
 
     [UnorderedEquality]
-    public ApiPermissionResponseDto[] Permissions { get; set; } = [];
+    public ApiPermissionInputDto[] Permissions { get; set; } = [];
 }
 
 

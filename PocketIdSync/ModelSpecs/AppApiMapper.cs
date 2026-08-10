@@ -1,4 +1,5 @@
-﻿using PocketIdSync.Models;
+﻿using System.Linq;
+using PocketIdSync.Models;
 using Riok.Mapperly.Abstractions;
 
 namespace PocketIdSync.ModelSpecs;
@@ -10,7 +11,6 @@ static partial class AppApiMapper
     [MapperIgnoreSource(nameof(ApiResponseDto.Id))]
     private static partial AppApiSpec Map(ApiResponseDto data);
 
-    // private static partial ApiResponseDto MapInto(AppApiSpec data);
     [MapperIgnoreTarget(nameof(ApiResponseDto.CreatedAt))]
     [MapperIgnoreTarget(nameof(ApiResponseDto.Id))]
     private static partial ApiResponseDto Map(AppApiSpec data);
@@ -25,6 +25,13 @@ static partial class AppApiMapper
     [MapperIgnoreSource(nameof(ApiResponseDto.Permissions))]
     [MapperIgnoreSource(nameof(ApiResponseDto.Resource))]
     private static partial ApiUpdateDto MapForUpdate(ApiResponseDto data);
+
+    [MapperIgnoreSource(nameof(ApiPermissionResponseDto.Id))]
+    private static partial ApiPermissionInputDto Map(ApiPermissionResponseDto data);
+
+    [MapperIgnoreTarget(nameof(ApiPermissionResponseDto.Id))]
+    private static partial ApiPermissionResponseDto Map(ApiPermissionInputDto data);
+    private static partial ApiResponseDto MapInto(ApiResponseDto data);
 
     public static ApiUpdateDto ToUpdateRequest(this ApiResponseDto data)
     {
@@ -57,14 +64,14 @@ static partial class AppApiMapper
 
     public static ApiResponseDto FromKind(this AppApiSpec spec, ApiResponseDto? remote)
     {
-        // if (remote is not null)
-        // {
-        //     var copy = MapInto(remote);
-        //     copy.FriendlyName = spec.FriendlyName;
-        //     copy.Name = spec.Name;
-        //     copy.CustomClaims = spec.CustomClaims;
-        //     return copy;
-        // }
+        if (remote is not null)
+        {
+            var copy = MapInto(remote);
+            copy.Resource = spec.Resource;
+            copy.Name = spec.Name;
+            // copy.Permissions = [..spec.Permissions ?? []];
+            return copy;
+        }
         var data = Map(spec);
         return data;
     }

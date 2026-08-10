@@ -23,16 +23,16 @@ sealed class AppApisIdApi(PocketIdClient PocketId, string Id)
         return response.Nok<ApiResponseDto>();
     }
 
-    // public async Task<ApiResult<ApiResponseDto>> PutAsync(OidcClientUpdateDto data, CancellationToken ct)
-    // {
-    //     var request = new RestRequest("/oidc/clients/{id}").AddUrlSegment("id", Id).AddBody(data);
-    //     var response = await PocketId.Api.ExecutePutAsync<ApiResponseDto>(request, ct);
-    //     if (response.IsSuccessful)
-    //     {
-    //         return await GetAsync(ct);
-    //     }
-    //     return response.Nok<ApiResponseDto>(response.Content);
-    // }
+    public async Task<ApiResult<ApiResponseDto>> PutAsync(ApiUpdateDto data, CancellationToken ct)
+    {
+        var request = new RestRequest("/apis/{id}").AddUrlSegment("id", Id).AddBody(data);
+        var response = await PocketId.Api.ExecutePutAsync<ApiResponseDto>(request, ct);
+        if (response.IsSuccessful)
+        {
+            return await GetAsync(ct);
+        }
+        return response.Nok<ApiResponseDto>(response.Content);
+    }
 
     public async Task<ApiResult<int>> DeleteAsync(CancellationToken ct)
     {

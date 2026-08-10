@@ -15,6 +15,27 @@ static partial class AppApiMapper
     [MapperIgnoreTarget(nameof(ApiResponseDto.Id))]
     private static partial ApiResponseDto Map(AppApiSpec data);
 
+    [MapperIgnoreSource(nameof(ApiResponseDto.CreatedAt))]
+    [MapperIgnoreSource(nameof(ApiResponseDto.Id))]
+    [MapperIgnoreSource(nameof(ApiResponseDto.Permissions))]
+    private static partial ApiCreateDto MapForCreate(ApiResponseDto data);
+
+    [MapperIgnoreSource(nameof(ApiResponseDto.CreatedAt))]
+    [MapperIgnoreSource(nameof(ApiResponseDto.Id))]
+    [MapperIgnoreSource(nameof(ApiResponseDto.Permissions))]
+    [MapperIgnoreSource(nameof(ApiResponseDto.Resource))]
+    private static partial ApiUpdateDto MapForUpdate(ApiResponseDto data);
+
+    public static ApiUpdateDto ToUpdateRequest(this ApiResponseDto data)
+    {
+        return MapForUpdate(data);
+    }
+
+    public static ApiCreateDto ToCreateRequest(this ApiResponseDto data)
+    {
+        return MapForCreate(data);
+    }
+
     public static AppApiKind ToKind(this ApiResponseDto data, string? ns = null) => ToKind(Map(data), ns);
 
     public static AppApiKind ToKind(AppApiSpec spec, string? ns = null)

@@ -29,27 +29,27 @@ sealed class AppApiFilestore : IConfigStoreAppApi
         }
     }
 
-    public async Task<int> LoadAsync(List<AppApiSyncItem> clients, CancellationToken ct = default)
+    public async Task<int> LoadAsync(List<AppApiSyncItem> appApis, CancellationToken ct = default)
     {
         foreach (var specFile in Root.EnumerateFiles("*.yaml"))
         {
             try
             {
-                var client = new AppApiSyncItem { Filename = specFile.FullName };
-                var readClient = await ReadFileAsync(client, ct);
-                if (readClient is null)
+                var sync = new AppApiSyncItem { Filename = specFile.FullName };
+                var readAppApi = await ReadFileAsync(sync, ct);
+                if (readAppApi is null)
                 {
                     continue;
                 }
-                var existing = clients.FirstOrDefault(c => string.Equals(c.Name, client.Name, StringComparison.OrdinalIgnoreCase));
+                var existing = appApis.FirstOrDefault(c => string.Equals(c.Name, sync.Name, StringComparison.OrdinalIgnoreCase));
                 if (existing is not null)
                 {
-                    existing.Filename = client.Filename;
-                    existing.Local = client.Local;
+                    existing.Filename = sync.Filename;
+                    existing.Local = sync.Local;
                 }
                 else
                 {
-                    clients.Add(client);
+                    appApis.Add(sync);
                 }
             }
             catch
@@ -60,7 +60,7 @@ sealed class AppApiFilestore : IConfigStoreAppApi
         return ExitCode.Success;
     }
 
-    public async Task<int> LoadAsync(List<AppApiSyncItem> clients, string filename, string? ns = null, CancellationToken ct = default)
+    public async Task<int> LoadAsync(List<AppApiSyncItem> appApis, string filename, string? ns = null, CancellationToken ct = default)
     {
         try
         {
@@ -75,7 +75,7 @@ sealed class AppApiFilestore : IConfigStoreAppApi
             }
             var client = new AppApiSyncItem { Filename = specFile.FullName };
             await ReadFileAsync(client, ct);
-            clients.Add(client);
+            appApis.Add(client);
             return ExitCode.Success;
         }
         catch
@@ -109,27 +109,27 @@ sealed class AppApiFilestore : IConfigStoreAppApi
         }
     }
 
-    public async Task<int> SynchronizeAsync(AppApiSyncItem client, CancellationToken ct = default)
+    public async Task<int> SynchronizeAsync(AppApiSyncItem appApi, CancellationToken ct = default)
     {
-        if (string.IsNullOrEmpty(client.Filename))
+        if (string.IsNullOrEmpty(appApi.Filename))
         {
-            FileInfo specFile = new FileInfo(Path.Combine(Root.FullName, $"{client.Id}.yaml"));
-            client.Filename = specFile.FullName;
+            FileInfo specFile = new FileInfo(Path.Combine(Root.FullName, $"{appApi.Id}.yaml"));
+            appApi.Filename = specFile.FullName;
         }
-        var ns = client.Local is null ? "default" : client.Namespace;
-        var kind = client.Remote?.ToKind(ns);
-        client.LocalMerged = kind;
-        client.IsLocalDirty = !client.IsRemoteEqualLocal;
+        var ns = appApi.Local is null ? "default" : appApi.Namespace;
+        var kind = appApi.Remote?.ToKind(ns);
+        appApi.LocalMerged = kind;
+        appApi.IsLocalDirty = !appApi.IsRemoteEqualLocal;
         return ExitCode.Success;
     }
 
-    public async Task<int> WriteAsync<T>(AppApiSyncItem client, T? data, CancellationToken ct = default) where T : IKubernetes
+    public async Task<int> WriteAsync<T>(AppApiSyncItem appApi, T? data, CancellationToken ct = default) where T : IKubernetes
     {
         try
         {
-            if (data is null || string.IsNullOrEmpty(client.Filename)) return ExitCode.BadRequest;
-            var name = !string.Equals(data.Kind, "UserGroup", StringComparison.OrdinalIgnoreCase) ? $"{client.Id}.{data.Kind}.yaml" : $"{client.Id}.yaml";
-            var fileName = new FileInfo(client.Filename);
+            if (data is null || string.IsNullOrEmpty(appApi.Filename)) return ExitCode.BadRequest;
+            var name = !string.Equals(data.Kind, "ApplicationApi", StringComparison.OrdinalIgnoreCase) ? $"{appApi.Id}.{data.Kind}.yaml" : $"{appApi.Id}.yaml";
+            var fileName = new FileInfo(appApi.Filename);
             var yamlPath = Path.Combine(fileName.DirectoryName!, name);
             var content = Yaml.Write(data);
             var utf8Encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);

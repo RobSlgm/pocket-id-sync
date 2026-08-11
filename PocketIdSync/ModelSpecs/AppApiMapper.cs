@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System.Globalization;
+using System.Linq;
+using System.Text.RegularExpressions;
 using PocketIdSync.Models;
 using Riok.Mapperly.Abstractions;
 
@@ -54,7 +56,7 @@ static partial class AppApiMapper
             Kind = "ApplicationApi",
             Metadata = new KubernetesMetadata
             {
-                Name = System.Text.Json.JsonNamingPolicy.CamelCase.ConvertName(spec.Name ?? ""),
+                Name = System.Text.Json.JsonNamingPolicy.CamelCase.ConvertName(ToSafeName(spec.Resource)),
                 Namespace = ns is not null ? System.Text.Json.JsonNamingPolicy.CamelCase.ConvertName(ns) : null,
             },
             Spec = spec,
@@ -62,6 +64,15 @@ static partial class AppApiMapper
         return kind;
     }
 
+    public static string ToSafeName(string? uri)
+    {
+        if (string.IsNullOrEmpty(uri))
+        {
+            return string.Empty;
+        }
+        var lowerInput = uri.ToLowerInvariant();
+        return AllowedNameCharacterset.Replace(lowerInput, "-");
+    }
 
     public static ApiResponseDto FromKind(this AppApiSpec spec, ApiResponseDto? remote)
     {
@@ -76,4 +87,7 @@ static partial class AppApiMapper
         var data = Map(spec);
         return data;
     }
+
+    [GeneratedRegex("[^a-z0-9.\\-]+", RegexOptions.None, matchTimeoutMilliseconds: 100)]
+    private static partial Regex AllowedNameCharacterset { get; }
 }

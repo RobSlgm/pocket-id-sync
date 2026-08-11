@@ -33,13 +33,16 @@ sealed class AppApiSynchronizer : ISynchronizer<AppApiSyncItem>
         {
             return (ExitCode.FatalError, default, default);
         }
-        foreach (var group in Items)
+        foreach (var sync in Items)
         {
-            var source = allShortResponse.Data?.FirstOrDefault(g => string.Equals(group.Name, g.Name, StringComparison.OrdinalIgnoreCase));
-            if (source is not null)
+            if (sync.Local?.Spec?.Resource is not null)
             {
-                group.Remote = source;
-                group.Id = source.Id;
+                var source = allShortResponse.Data?.FirstOrDefault(g => string.Equals(sync.Local.Spec.Resource, g.Resource, StringComparison.OrdinalIgnoreCase));
+                if (source is not null)
+                {
+                    sync.Remote = source;
+                    sync.Id = source.Id;
+                }
             }
         }
         return (ExitCode.Success, default, default);
@@ -57,7 +60,7 @@ sealed class AppApiSynchronizer : ISynchronizer<AppApiSyncItem>
             if (string.IsNullOrEmpty(appApi.Id)) continue;
             var client = new AppApiSyncItem
             {
-                Id = appApi.Id,
+                Id = AppApiMapper.ToSafeName(appApi.Resource),
                 Name = appApi.Name,
             };
             if (!client.IsMatch(selector))

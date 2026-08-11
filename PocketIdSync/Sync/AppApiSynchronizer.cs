@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using PocketIdSync.Apis;
 using PocketIdSync.ModelSpecs;
+using PocketIdSync.Utils;
 
 namespace PocketIdSync.Sync;
 
@@ -60,7 +61,7 @@ sealed class AppApiSynchronizer : ISynchronizer<AppApiSyncItem>
             if (string.IsNullOrEmpty(appApi.Id)) continue;
             var sync = new AppApiSyncItem
             {
-                Id = AppApiMapper.ToSafeName(appApi.Resource),
+                Id = StringNameConverter.ToSafeName(appApi.Resource),
                 Name = appApi.Name,
             };
             if (!sync.IsMatch(selector))
@@ -99,6 +100,7 @@ sealed class AppApiSynchronizer : ISynchronizer<AppApiSyncItem>
             {
                 if (sync.Remote is not null)
                 {
+                    var xxx = appApi.ToUpdateRequest();
                     var update = await pocketId.AppApis.Id(sync.Remote.Id!).PutAsync(appApi.ToUpdateRequest(), ct);
                     if (!update.IsSuccessful)
                     {

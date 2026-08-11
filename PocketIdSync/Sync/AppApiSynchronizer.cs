@@ -58,22 +58,22 @@ sealed class AppApiSynchronizer : ISynchronizer<AppApiSyncItem>
         foreach (var appApi in allShortResponse.Data ?? [])
         {
             if (string.IsNullOrEmpty(appApi.Id)) continue;
-            var client = new AppApiSyncItem
+            var sync = new AppApiSyncItem
             {
                 Id = AppApiMapper.ToSafeName(appApi.Resource),
                 Name = appApi.Name,
             };
-            if (!client.IsMatch(selector))
+            if (!sync.IsMatch(selector))
             {
                 continue;
             }
-            var clientResponse = await pocketId.AppApis.Id(appApi.Id).GetAsync(ct);
-            if (!clientResponse.IsSuccessful)
+            var appApiResponse = await pocketId.AppApis.Id(appApi.Id).GetAsync(ct);
+            if (!appApiResponse.IsSuccessful)
             {
-                return (ExitCode.FatalError, client, $"Merge failed {clientResponse.Status}");
+                return (ExitCode.FatalError, sync, $"Merge failed {appApiResponse.Status}");
             }
-            client.Remote = clientResponse.Data;
-            Items.Add(client);
+            sync.Remote = appApiResponse.Data;
+            Items.Add(sync);
         }
         return (ExitCode.Success, default, default);
     }
@@ -91,33 +91,33 @@ sealed class AppApiSynchronizer : ISynchronizer<AppApiSyncItem>
     private async Task<int> SynchronizeToPocketIdAsync(PocketIdClient pocketId, CancellationToken ct)
     {
         var exitCode = ExitCode.Success;
-        foreach (var group in Items.Where(c => (c.IsRemoteEqualLocal == false) && c.HasError == false))
+        foreach (var sync in Items.Where(c => (c.IsRemoteEqualLocal == false) && c.HasError == false))
         {
-            if (group.Local?.Spec is null) continue;
-            var appApi = group.Local.Spec.FromKind(group.Remote);
-            if (group.IsRemoteEqualLocal == false)
+            if (sync.Local?.Spec is null) continue;
+            var appApi = sync.Local.Spec.FromKind(sync.Remote);
+            if (sync.IsRemoteEqualLocal == false)
             {
-                if (group.Remote is not null)
+                if (sync.Remote is not null)
                 {
                     var update = await pocketId.AppApis.Id(appApi.Id!).PutAsync(appApi.ToUpdateRequest(), ct);
                     if (!update.IsSuccessful)
                     {
-                        group.SetError(update.ErrorMessage);
+                        sync.SetError(update.ErrorMessage);
                         exitCode = ExitCode.GeneralError;
                         continue;
                     }
-                    group.RemoteMerged = update.Data;
+                    sync.RemoteMerged = update.Data;
                 }
                 else
                 {
                     var create = await pocketId.AppApis.PostAsync(appApi.ToCreateRequest(), ct);
                     if (!create.IsSuccessful)
                     {
-                        group.SetError(create.ErrorMessage);
+                        sync.SetError(create.ErrorMessage);
                         exitCode = ExitCode.GeneralError;
                         continue;
                     }
-                    group.RemoteMerged = create.Data;
+                    sync.RemoteMerged = create.Data;
                 }
             }
         }
@@ -126,20 +126,20 @@ sealed class AppApiSynchronizer : ISynchronizer<AppApiSyncItem>
 
     private async Task<int> SynchronizeToConfigurationAsync(PocketIdClient pocketId, CancellationToken ct)
     {
-        foreach (var client in Items.Where(c => c.Remote is not null && c.HasError == false))
+        foreach (var sync in Items.Where(c => c.Remote is not null && c.HasError == false))
         {
-            var syncResponse = await Configuration.SynchronizeAsync(client, ct);
+            var syncResponse = await Configuration.SynchronizeAsync(sync, ct);
             if (syncResponse != ExitCode.Success)
             {
-                client.SetError("Sync");
+                sync.SetError("Sync");
                 continue;
             }
-            if (client.HasError == false && client.LocalMerged is not null && client.IsLocalDirty == true)
+            if (sync.HasError == false && sync.LocalMerged is not null && sync.IsLocalDirty == true)
             {
-                var store = await Configuration.WriteAsync(client, client.LocalMerged, ct);
+                var store = await Configuration.WriteAsync(sync, sync.LocalMerged, ct);
                 if (store != ExitCode.Success)
                 {
-                    client.SetError("Local store write");
+                    sync.SetError("Local store write");
                     continue;
                 }
             }
@@ -185,14 +185,14 @@ sealed class AppApiSynchronizer : ISynchronizer<AppApiSyncItem>
                 return ExitCode.InvalidConfiguration;
             }
         }
-        foreach (var group in Items)
+        foreach (var sync in Items)
         {
-            if (group.Local is null || group.Local.Spec is null)
+            if (sync.Local is null || sync.Local.Spec is null)
             {
-                group.SetError($"Local specification missing or invalid");
+                sync.SetError($"Local specification missing or invalid");
                 continue;
             }
-            var local = group.Local.Spec;
+            var local = sync.Local.Spec;
             if (local is null) continue;
         }
         int removeFailed = Items.RemoveAll(c => c.Local is null || c.Local.Spec is null || c.HasError == true);

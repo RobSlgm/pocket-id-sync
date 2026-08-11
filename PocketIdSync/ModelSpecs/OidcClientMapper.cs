@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using PocketIdSync.Models;
+using PocketIdSync.Sync;
 using Riok.Mapperly.Abstractions;
 
 namespace PocketIdSync.ModelSpecs;
@@ -39,7 +40,7 @@ static partial class OidcClientMapper
     [MapperIgnoreSource(nameof(OidcClientSpec.LogoDarkContent))]
     private static partial OidcClientCompleteDto Map(OidcClientSpec data);
 
-    private static OidcClientSpec ToSpec(OidcClientCompleteDto data)
+    private static OidcClientSpec ToSpec(OidcClientCompleteDto data, AppApiResolver? apiResolver)
     {
         var spec = Map(data);
         if (data.HasDarkLogo == true)
@@ -50,19 +51,39 @@ static partial class OidcClientMapper
         {
             spec.LogoPath = $"{data.Id}.jpg";
         }
+        spec.ClientPermission = ToPermissions(apiResolver, data.ClientPermissionIds);
+        spec.UserDelegatedPermission = ToPermissions(apiResolver, data.UserDelegatedPermissionIds);
         return spec;
     }
 
-    public static OidcClientKind ToKind(this OidcClientCompleteDto data, string? ns = null) => ToKind(ToSpec(data), ns, [.. data.AllowedUserGroups.Select(c => c.Name!)]);
+    private static AppApiPermission[]? ToPermissions(AppApiResolver? resolver, string[]? permissionIds)
+    {
+        if (resolver is null || permissionIds is null || permissionIds.Length == 0)
+        {
+            return null;
+        }
+        var permissions = new List<AppApiPermission>();
+        foreach (var pid in permissionIds)
+        {
+            var permission = resolver.Find(pid);
+            if (permission is not null)
+            {
+                permissions.Add(permission);
+            }
+        }
+        return permissions.Count > 0 ? [.. permissions] : null;
+    }
 
-    public static OidcClientKind ToKind(this OidcClientCompleteDto data, OidcClientKind? other)
+    public static OidcClientKind ToKind(this OidcClientCompleteDto data, string? ns = null, AppApiResolver? apiResolver = null) => ToKind(ToSpec(data, apiResolver), ns, [.. data.AllowedUserGroups.Select(c => c.Name!)]);
+
+    public static OidcClientKind ToKind(this OidcClientCompleteDto data, OidcClientKind? other, AppApiResolver? apiResolver)
     {
         var groups = data.AllowedUserGroups.Select(g => g.Name!).ToArray();
         if (other is null || other.Metadata is null)
         {
-            return ToKind(ToSpec(data), ns: null, groups);
+            return ToKind(ToSpec(data, apiResolver), ns: null, groups);
         }
-        var kind = ToKind(ToSpec(data), other.Metadata.Namespace, groups);
+        var kind = ToKind(ToSpec(data, apiResolver), other.Metadata.Namespace, groups);
         if (kind.Spec is null)
         {
             throw new InvalidOperationException("YAML malformed");
@@ -98,7 +119,7 @@ static partial class OidcClientMapper
         return kind;
     }
 
-    public static OidcClientCompleteDto FromKind(this OidcClientSpec spec, Dictionary<string, UserGroupMinimalDto> userGroups)
+    public static OidcClientCompleteDto FromKind(this OidcClientSpec spec, Dictionary<string, UserGroupMinimalDto> userGroups, AppApiResolver? apiResolver)
     {
         var data = Map(spec);
         if (spec.AllowedGroups is not null && spec.AllowedGroups.Length > 0)

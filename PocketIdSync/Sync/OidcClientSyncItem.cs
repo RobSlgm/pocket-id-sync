@@ -41,7 +41,7 @@ sealed class OidcClientSyncItem : ISyncItem<OidcClientKind, OidcClientCompleteDt
             IsRemoteEqualLocal = false;
             return IsRemoteEqualLocal;
         }
-        var remoteSpec = Remote.ToKind(Local);
+        var remoteSpec = Remote.ToKind(Local, null);// TODO: AppApiResolver
         IsRemoteEqualLocal = Local.Spec == remoteSpec.Spec;
         return IsRemoteEqualLocal;
     }

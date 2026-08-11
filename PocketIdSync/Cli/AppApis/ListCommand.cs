@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using DotMake.CommandLine;
 using PocketIdSync.Apis;
 using PocketIdSync.Models;
+using PocketIdSync.Sync;
 using PocketIdSync.Utils;
 using Spectre.Console;
 
@@ -26,7 +27,9 @@ sealed class ListCommand(JsonHelper JsonHelper, IHttpClientFactory HttpClientFac
     public async Task<int> RunAsync(CliContext context)
     {
         var pocketId = HttpClientFactory.Connect(PocketIdUri, ApiKey);
-        var apis = await pocketId.AppApis.ListAsync(ct: context.CancellationToken);
+        var resolver = new AppApiResolver();
+
+        var apis = await resolver.Initialize(pocketId, context.CancellationToken);
         if (!apis.IsSuccessful)
         {
             AnsiConsole.MarkupLine($"[red]✗ Pocket ID call {apis.Uri} failed: {apis.Status}[/]");
@@ -69,7 +72,7 @@ sealed class ListCommand(JsonHelper JsonHelper, IHttpClientFactory HttpClientFac
                     table.AddEmptyRow();
                 }
             }
-            table.AddRow(new Text(client.Resource ?? ""), new Text(client.Name ?? ""),  new Text(""), new Text(client.Id ?? ""),new Text(client.CreatedAt?.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture) ?? ""));
+            table.AddRow(new Text(client.Resource ?? ""), new Text(client.Name ?? ""), new Text(""), new Text(client.Id ?? ""), new Text(client.CreatedAt?.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture) ?? ""));
             if (ShowPermissions)
             {
                 foreach (var permission in client.Permissions)

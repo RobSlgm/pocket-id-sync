@@ -15,6 +15,7 @@ sealed class OidcClientSynchronizer : ISynchronizer<OidcClientSyncItem>
     public List<OidcClientSyncItem> Items { get; private set; } = [];
     private Dictionary<string, UserGroupMinimalDto> UserGroups { get; } = new Dictionary<string, UserGroupMinimalDto>(StringComparer.OrdinalIgnoreCase);
     private readonly IConfigStoreOidcClient Configuration;
+    private readonly AppApiResolver AppApiResolver = new();
 
     public bool ForceLogoSynchronization { get; set; }
 
@@ -46,6 +47,11 @@ sealed class OidcClientSynchronizer : ISynchronizer<OidcClientSyncItem>
     {
         var userGroupResult = await LoadUserGroupsAsync(pocketId, ct);
         if (userGroupResult != ExitCode.Success)
+        {
+            return (ExitCode.FatalError, default, "UserGroups");
+        }
+        var appApiResult = await AppApiResolver.Initialize(pocketId, ct);
+        if (!appApiResult.IsSuccessful)
         {
             return (ExitCode.FatalError, default, "UserGroups");
         }
@@ -131,7 +137,7 @@ sealed class OidcClientSynchronizer : ISynchronizer<OidcClientSyncItem>
         foreach (var client in Items.Where(c => (c.IsRemoteEqualLocal == false || ForceLogoSynchronization == true) && c.HasError == false))
         {
             if (client.Local?.Spec is null) continue;
-            var oidcClient = client.Local.Spec.FromKind(UserGroups);
+            var oidcClient = client.Local.Spec.FromKind(UserGroups, AppApiResolver);
             if (client.IsRemoteEqualLocal == false)
             {
                 if (client.Remote is not null)

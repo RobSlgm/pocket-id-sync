@@ -123,7 +123,7 @@ sealed class OidcClientFilestore : IConfigStoreOidcClient
             FileInfo specFile = new FileInfo(Path.Combine(Root.FullName, $"{client.Id}.yaml"));
             client.Filename = specFile.FullName;
         }
-        client.LocalMerged = client.Remote?.ToKind(client.Local);
+        client.LocalMerged = client.Remote?.ToKind(client.Local, null); // TODO: AppApiResolver
         client.IsLocalDirty = !client.IsRemoteEqualLocal;
         return ExitCode.Success;
     }

@@ -1,4 +1,5 @@
-﻿using PocketIdSync.Models;
+﻿using System.Linq;
+using PocketIdSync.Models;
 using PocketIdSync.Utils;
 using Riok.Mapperly.Abstractions;
 
@@ -42,6 +43,11 @@ static partial class AppApiMapper
     public static ApiCreateDto ToCreateRequest(this ApiResponseDto data)
     {
         return MapForCreate(data);
+    }
+
+    public static ApiPermissionInputDto[] ToUpdateRequest(this ApiPermissionResponseDto[] data)
+    {
+        return [.. data.Select(p => Map(p))];
     }
 
     public static AppApiKind ToKind(this ApiResponseDto data, string? ns = null) => ToKind(Map(data), ns);

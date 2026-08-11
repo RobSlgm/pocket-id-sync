@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using PocketIdSync.Apis;
+using PocketIdSync.Models;
 using PocketIdSync.ModelSpecs;
 using PocketIdSync.Utils;
 
@@ -89,6 +90,22 @@ sealed class AppApiSynchronizer : ISynchronizer<AppApiSyncItem>
         };
     }
 
+    private static async Task<ApiResult<ApiResponseDto>> UpdateAsync(PocketIdClient pocketId, string? id, ApiResponseDto appApi, CancellationToken ct)
+    {
+        var header = !string.IsNullOrEmpty(id) ? await pocketId.AppApis.Id(id).PutAsync(appApi.ToUpdateRequest(), ct) : await pocketId.AppApis.PostAsync(appApi.ToCreateRequest(), ct);
+        if (!header.IsSuccessful || header.Data is null)
+        {
+            return header;
+        }
+        var appApiId = header.Data.Id!;
+        var permissions = await pocketId.AppApis.Id(appApiId).UpdatePermissions(appApi.Permissions.ToUpdateRequest(), ct);
+        // if (!permissions.IsSuccessful)
+        // {
+        //     return permissions;
+        // }
+        return permissions;
+    }
+
     private async Task<int> SynchronizeToPocketIdAsync(PocketIdClient pocketId, CancellationToken ct)
     {
         var exitCode = ExitCode.Success;
@@ -98,29 +115,14 @@ sealed class AppApiSynchronizer : ISynchronizer<AppApiSyncItem>
             var appApi = sync.Local.Spec.FromKind(sync.Remote);
             if (sync.IsRemoteEqualLocal == false)
             {
-                if (sync.Remote is not null)
+                var changed = await UpdateAsync(pocketId, sync.Remote?.Id, appApi, ct);
+                if (!changed.IsSuccessful)
                 {
-                    var xxx = appApi.ToUpdateRequest();
-                    var update = await pocketId.AppApis.Id(sync.Remote.Id!).PutAsync(appApi.ToUpdateRequest(), ct);
-                    if (!update.IsSuccessful)
-                    {
-                        sync.SetError(update.ErrorMessage);
-                        exitCode = ExitCode.GeneralError;
-                        continue;
-                    }
-                    sync.RemoteMerged = update.Data;
+                    sync.SetError(changed.ErrorMessage);
+                    exitCode = ExitCode.GeneralError;
+                    continue;
                 }
-                else
-                {
-                    var create = await pocketId.AppApis.PostAsync(appApi.ToCreateRequest(), ct);
-                    if (!create.IsSuccessful)
-                    {
-                        sync.SetError(create.ErrorMessage);
-                        exitCode = ExitCode.GeneralError;
-                        continue;
-                    }
-                    sync.RemoteMerged = create.Data;
-                }
+                sync.RemoteMerged = changed.Data;
             }
         }
         return exitCode;

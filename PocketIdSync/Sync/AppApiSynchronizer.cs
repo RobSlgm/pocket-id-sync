@@ -99,7 +99,7 @@ sealed class AppApiSynchronizer : ISynchronizer<AppApiSyncItem>
             {
                 if (sync.Remote is not null)
                 {
-                    var update = await pocketId.AppApis.Id(appApi.Id!).PutAsync(appApi.ToUpdateRequest(), ct);
+                    var update = await pocketId.AppApis.Id(sync.Remote.Id!).PutAsync(appApi.ToUpdateRequest(), ct);
                     if (!update.IsSuccessful)
                     {
                         sync.SetError(update.ErrorMessage);

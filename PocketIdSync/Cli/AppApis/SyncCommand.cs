@@ -53,7 +53,7 @@ sealed class SyncCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFact
         {
             return ExitCode.BadRequest;
         }
-        var selector = new SyncItemSelector { Filename = Filename, Name = Name, Namespace = Namespace, };
+        var selector = new SyncItemSelector { Filename = Filename, Name = AppApiMapper.ToSafeName(Name), Namespace = Namespace, };
 
         if (SynchronizationTarget == SynchronizationTarget.PocketID)
         {

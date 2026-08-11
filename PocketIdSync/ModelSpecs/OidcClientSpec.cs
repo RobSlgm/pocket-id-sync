@@ -51,6 +51,12 @@ sealed partial class OidcClientSpec
     public int? AccessTokenDurationMinutes { get; set; }
 
     public int? RefreshTokenDurationMinutes { get; set; }
+
+    [UnorderedEquality]
+    public AppApiPermission[]? UserDelegatedPermission { get; set; }
+
+    [UnorderedEquality]
+    public AppApiPermission[]? ClientPermission { get; set; }
 }
 
 sealed class OidcClientKind : KubernetesSpec<OidcClientSpec> { }

@@ -9,29 +9,37 @@ namespace PocketIdSync.ModelSpecs;
 [Mapper]
 static partial class OidcClientMapper
 {
-    [MapperIgnoreSource(nameof(OidcClientWithAllowedGroupsDto.AllowedUserGroups))]
-    [MapperIgnoreSource(nameof(OidcClientWithAllowedGroupsDto.HasLogo))]
-    [MapperIgnoreSource(nameof(OidcClientWithAllowedGroupsDto.HasDarkLogo))]
-    [MapperIgnoreSource(nameof(OidcClientWithAllowedGroupsDto.IsGroupRestricted))]
+    [MapperIgnoreSource(nameof(OidcClientCompleteDto.AllowedUserGroups))]
+    [MapperIgnoreSource(nameof(OidcClientCompleteDto.ClientPermissionIds))]
+    [MapperIgnoreSource(nameof(OidcClientCompleteDto.UserDelegatedPermissionIds))]
+    [MapperIgnoreSource(nameof(OidcClientCompleteDto.HasLogo))]
+    [MapperIgnoreSource(nameof(OidcClientCompleteDto.HasDarkLogo))]
+    [MapperIgnoreSource(nameof(OidcClientCompleteDto.IsGroupRestricted))]
     [MapperIgnoreTarget(nameof(OidcClientSpec.AllowedGroups))]
+    [MapperIgnoreTarget(nameof(OidcClientSpec.ClientPermission))]
+    [MapperIgnoreTarget(nameof(OidcClientSpec.UserDelegatedPermission))]
     [MapperIgnoreTarget(nameof(OidcClientSpec.LogoPath))]
     [MapperIgnoreTarget(nameof(OidcClientSpec.LogoContent))]
     [MapperIgnoreTarget(nameof(OidcClientSpec.LogoDarkPath))]
     [MapperIgnoreTarget(nameof(OidcClientSpec.LogoDarkContent))]
-    private static partial OidcClientSpec Map(OidcClientWithAllowedGroupsDto data);
+    private static partial OidcClientSpec Map(OidcClientCompleteDto data);
 
-    [MapperIgnoreTarget(nameof(OidcClientWithAllowedGroupsDto.AllowedUserGroups))]
-    [MapperIgnoreTarget(nameof(OidcClientWithAllowedGroupsDto.HasLogo))]
-    [MapperIgnoreTarget(nameof(OidcClientWithAllowedGroupsDto.HasDarkLogo))]
-    [MapperIgnoreTarget(nameof(OidcClientWithAllowedGroupsDto.IsGroupRestricted))]
+    [MapperIgnoreTarget(nameof(OidcClientCompleteDto.AllowedUserGroups))]
+    [MapperIgnoreTarget(nameof(OidcClientCompleteDto.ClientPermissionIds))]
+    [MapperIgnoreTarget(nameof(OidcClientCompleteDto.UserDelegatedPermissionIds))]
+    [MapperIgnoreTarget(nameof(OidcClientCompleteDto.HasLogo))]
+    [MapperIgnoreTarget(nameof(OidcClientCompleteDto.HasDarkLogo))]
+    [MapperIgnoreTarget(nameof(OidcClientCompleteDto.IsGroupRestricted))]
     [MapperIgnoreSource(nameof(OidcClientSpec.AllowedGroups))]
+    [MapperIgnoreSource(nameof(OidcClientSpec.ClientPermission))]
+    [MapperIgnoreSource(nameof(OidcClientSpec.UserDelegatedPermission))]
     [MapperIgnoreSource(nameof(OidcClientSpec.LogoPath))]
     [MapperIgnoreSource(nameof(OidcClientSpec.LogoContent))]
     [MapperIgnoreSource(nameof(OidcClientSpec.LogoDarkPath))]
     [MapperIgnoreSource(nameof(OidcClientSpec.LogoDarkContent))]
-    private static partial OidcClientWithAllowedGroupsDto Map(OidcClientSpec data);
+    private static partial OidcClientCompleteDto Map(OidcClientSpec data);
 
-    private static OidcClientSpec ToSpec(OidcClientWithAllowedGroupsDto data)
+    private static OidcClientSpec ToSpec(OidcClientCompleteDto data)
     {
         var spec = Map(data);
         if (data.HasDarkLogo == true)
@@ -45,14 +53,14 @@ static partial class OidcClientMapper
         return spec;
     }
 
-    public static OidcClientKind ToKind(this OidcClientWithAllowedGroupsDto data, string? ns = null) => ToKind(ToSpec(data), ns, [.. data.AllowedUserGroups.Select(c => c.Name!)]);
+    public static OidcClientKind ToKind(this OidcClientCompleteDto data, string? ns = null) => ToKind(ToSpec(data), ns, [.. data.AllowedUserGroups.Select(c => c.Name!)]);
 
-    public static OidcClientKind ToKind(this OidcClientWithAllowedGroupsDto data, OidcClientKind? other)
+    public static OidcClientKind ToKind(this OidcClientCompleteDto data, OidcClientKind? other)
     {
         var groups = data.AllowedUserGroups.Select(g => g.Name!).ToArray();
         if (other is null || other.Metadata is null)
         {
-            return ToKind(ToSpec(data), null, groups);
+            return ToKind(ToSpec(data), ns: null, groups);
         }
         var kind = ToKind(ToSpec(data), other.Metadata.Namespace, groups);
         if (kind.Spec is null)
@@ -90,7 +98,7 @@ static partial class OidcClientMapper
         return kind;
     }
 
-    public static OidcClientWithAllowedGroupsDto FromKind(this OidcClientSpec spec, Dictionary<string, UserGroupMinimalDto> userGroups)
+    public static OidcClientCompleteDto FromKind(this OidcClientSpec spec, Dictionary<string, UserGroupMinimalDto> userGroups)
     {
         var data = Map(spec);
         if (spec.AllowedGroups is not null && spec.AllowedGroups.Length > 0)

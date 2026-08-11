@@ -8,7 +8,7 @@ namespace PocketIdSync.Models;
 [YamlSerializable(typeof(KubernetesBase))]
 [YamlSerializable(typeof(KubernetesMetadata))]
 [YamlSerializable(typeof(CustomClaimDto))]
-// [YamlSerializable(typeof(ApiPermissionResponseDto))]
+[YamlSerializable(typeof(AppApiPermission))]
 [YamlSerializable(typeof(AppApiKind))]
 [YamlSerializable(typeof(AppApiSpec))]
 [YamlSerializable(typeof(ApiPermissionInputDto))]

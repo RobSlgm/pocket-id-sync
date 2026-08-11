@@ -16,4 +16,12 @@ sealed partial class AppApiSpec
 }
 
 
+[Equatable]
+sealed partial class AppApiPermission
+{
+    public required string Resource { get; set; }
+    public required string Key { get; set; }
+}
+
+
 sealed class AppApiKind : KubernetesSpec<AppApiSpec> { }

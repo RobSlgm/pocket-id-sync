@@ -10,30 +10,41 @@ sealed class OidcClientsIdApi(PocketIdClient PocketId, string Id)
 {
     public OidcClientsLogoApi Logo(LogoThemeMode theme) => new(PocketId, Id, theme);
 
-    public async Task<ApiResult<OidcClientWithAllowedGroupsDto>> GetAsync(CancellationToken ct)
+    public async Task<ApiResult<OidcClientCompleteDto>> GetAsync(CancellationToken ct)
     {
         var request = new RestRequest("/oidc/clients/{id}").AddUrlSegment("id", Id);
-        var response = await PocketId.Api.ExecuteGetAsync<OidcClientWithAllowedGroupsDto>(request, ct);
-        if (response.IsSuccessful)
-        {
-            return response.Ok(response.Data);
-        }
+        var response = await PocketId.Api.ExecuteGetAsync<OidcClientCompleteDto>(request, ct);
         if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
-            return response.Ok<OidcClientWithAllowedGroupsDto>();
+            return response.Ok<OidcClientCompleteDto>();
         }
-        return response.Nok<OidcClientWithAllowedGroupsDto>();
+        if (!response.IsSuccessful || response.Data is null)
+        {
+            return response.Nok<OidcClientCompleteDto>();
+        }
+        var clientAccessRequest = new RestRequest("/api-access/{id}").AddUrlSegment("id", Id);
+        var clientAccessResponse = await PocketId.Api.ExecuteGetAsync<ClientApiAccessDto>(clientAccessRequest, ct);
+        if (!clientAccessResponse.IsSuccessful)
+        {
+            return clientAccessResponse.Nok<OidcClientCompleteDto>();
+        }
+        if (clientAccessResponse.Data is not null)
+        {
+            response.Data.UserDelegatedPermissionIds = clientAccessResponse.Data.UserDelegatedPermissionIds;
+            response.Data.ClientPermissionIds = clientAccessResponse.Data.ClientPermissionIds;
+        }
+        return response.Ok(response.Data);
     }
 
-    public async Task<ApiResult<OidcClientWithAllowedGroupsDto>> PutAsync(OidcClientUpdateDto data, CancellationToken ct)
+    public async Task<ApiResult<OidcClientCompleteDto>> PutAsync(OidcClientUpdateDto data, CancellationToken ct)
     {
         var request = new RestRequest("/oidc/clients/{id}").AddUrlSegment("id", Id).AddBody(data);
-        var response = await PocketId.Api.ExecutePutAsync<OidcClientWithAllowedGroupsDto>(request, ct);
+        var response = await PocketId.Api.ExecutePutAsync<OidcClientCompleteDto>(request, ct);
         if (response.IsSuccessful)
         {
             return await GetAsync(ct);
         }
-        return response.Nok<OidcClientWithAllowedGroupsDto>(response.Content);
+        return response.Nok<OidcClientCompleteDto>(response.Content);
     }
 
     public async Task<ApiResult<int>> DeleteAsync(CancellationToken ct)
@@ -47,16 +58,16 @@ sealed class OidcClientsIdApi(PocketIdClient PocketId, string Id)
         return response.Nok<int>(response.Content);
     }
 
-    public async Task<ApiResult<OidcClientWithAllowedGroupsDto>> PutAllowedUserGroupsAsync(UserGroupMinimalDto[] data, CancellationToken ct)
+    public async Task<ApiResult<OidcClientCompleteDto>> PutAllowedUserGroupsAsync(UserGroupMinimalDto[] data, CancellationToken ct)
     {
         var body = new UpdateAllowedUserGroupsDto { UserGroupIds = data.Select(g => g.Id).ToArray()! };
         var request = new RestRequest("/oidc/clients/{id}/allowed-user-groups").AddUrlSegment("id", Id).AddBody(body);
-        var response = await PocketId.Api.ExecutePutAsync<OidcClientWithAllowedGroupsDto>(request, ct);
+        var response = await PocketId.Api.ExecutePutAsync<OidcClientCompleteDto>(request, ct);
         if (response.IsSuccessful)
         {
             return response.Ok(response.Data);
         }
-        return response.Nok<OidcClientWithAllowedGroupsDto>(response.Content);
+        return response.Nok<OidcClientCompleteDto>(response.Content);
     }
 
     public async Task<ApiResult<SecretDto>> SetSecretAsync(CancellationToken ct)

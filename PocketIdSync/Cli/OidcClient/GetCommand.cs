@@ -24,9 +24,6 @@ sealed class GetCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFacto
     [CliOption(Description = "Download logo(s)", Alias = "logo", Required = false)]
     public bool IncludeLogos { get; set; }
 
-    [CliOption(Description = "Get client API access", Alias = "api", Required = false)]
-    public bool IncludeApiAccess { get; set; } = true;
-
     [CliOption(Description = "Output format", Alias = "o", AllowedValues = ["json", "yaml", "console"], Arity = CliArgumentArity.ZeroOrOne)]
     public string Output { get; set; } = "console";
 
@@ -71,16 +68,6 @@ sealed class GetCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFacto
                     }
                 }
             }
-        }
-        if (IncludeApiAccess == true)
-        {
-            var apiAccess = await pocketId.OidcClients.Id(ClientId).GetClientAccess(context.CancellationToken);
-            if (!apiAccess.IsSuccessful)
-            {
-                AnsiConsole.MarkupLine($"[red]✗ Pocket ID call {client.Uri} for API access failed: {client.Status}[/]");
-                return ExitCode.BadRequest;
-            }
-            JsonHelper.WriteConsole(apiAccess.Data);
         }
         return ExitCode.Success;
     }

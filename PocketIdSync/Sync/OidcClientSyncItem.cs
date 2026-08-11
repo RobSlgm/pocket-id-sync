@@ -3,7 +3,7 @@ using PocketIdSync.ModelSpecs;
 
 namespace PocketIdSync.Sync;
 
-sealed class OidcClientSyncItem : ISyncItem<OidcClientKind, OidcClientWithAllowedGroupsDto>
+sealed class OidcClientSyncItem : ISyncItem<OidcClientKind, OidcClientCompleteDto>
 {
     public string? Filename { get; set; }
     public string? Namespace { get; set; }
@@ -22,7 +22,7 @@ sealed class OidcClientSyncItem : ISyncItem<OidcClientKind, OidcClientWithAllowe
     }
     public OidcClientKind? LocalMerged { get; set; }
 
-    public OidcClientWithAllowedGroupsDto? Remote
+    public OidcClientCompleteDto? Remote
     {
         get;
         set
@@ -31,7 +31,7 @@ sealed class OidcClientSyncItem : ISyncItem<OidcClientKind, OidcClientWithAllowe
             Verify();
         }
     }
-    public OidcClientWithAllowedGroupsDto? RemoteMerged { get; set; }
+    public OidcClientCompleteDto? RemoteMerged { get; set; }
     public bool IsRemoteEqualLocal { get; private set; }
 
     private bool Verify()

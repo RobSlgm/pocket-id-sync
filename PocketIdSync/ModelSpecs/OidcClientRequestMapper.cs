@@ -6,25 +6,29 @@ namespace PocketIdSync.ModelSpecs;
 [Mapper(ThrowOnMappingNullMismatch = false)]
 static partial class OidcClientRequestMapper
 {
-    [MapperIgnoreSource(nameof(OidcClientWithAllowedGroupsDto.AllowedUserGroups))]
-    [MapperIgnoreSource(nameof(OidcClientWithAllowedGroupsDto.PkceSupported))]
+    [MapperIgnoreSource(nameof(OidcClientCompleteDto.AllowedUserGroups))]
+    [MapperIgnoreSource(nameof(OidcClientCompleteDto.UserDelegatedPermissionIds))]
+    [MapperIgnoreSource(nameof(OidcClientCompleteDto.ClientPermissionIds))]
+    [MapperIgnoreSource(nameof(OidcClientCompleteDto.PkceSupported))]
     [MapperIgnoreTarget(nameof(OidcClientCreateDto.LogoUrl))]
     [MapperIgnoreTarget(nameof(OidcClientCreateDto.DarkLogoUrl))]
-    private static partial OidcClientCreateDto MapForCreate(OidcClientWithAllowedGroupsDto data);
+    private static partial OidcClientCreateDto MapForCreate(OidcClientCompleteDto data);
 
-    [MapperIgnoreSource(nameof(OidcClientWithAllowedGroupsDto.Id))]
-    [MapperIgnoreSource(nameof(OidcClientWithAllowedGroupsDto.AllowedUserGroups))]
-    [MapperIgnoreSource(nameof(OidcClientWithAllowedGroupsDto.PkceSupported))]
+    [MapperIgnoreSource(nameof(OidcClientCompleteDto.Id))]
+    [MapperIgnoreSource(nameof(OidcClientCompleteDto.AllowedUserGroups))]
+    [MapperIgnoreSource(nameof(OidcClientCompleteDto.UserDelegatedPermissionIds))]
+    [MapperIgnoreSource(nameof(OidcClientCompleteDto.ClientPermissionIds))]
+    [MapperIgnoreSource(nameof(OidcClientCompleteDto.PkceSupported))]
     [MapperIgnoreTarget(nameof(OidcClientUpdateDto.LogoUrl))]
     [MapperIgnoreTarget(nameof(OidcClientUpdateDto.DarkLogoUrl))]
-    private static partial OidcClientUpdateDto MapForUpdate(OidcClientWithAllowedGroupsDto data);
+    private static partial OidcClientUpdateDto MapForUpdate(OidcClientCompleteDto data);
 
-    public static OidcClientUpdateDto ToUpdateRequest(this OidcClientWithAllowedGroupsDto data)
+    public static OidcClientUpdateDto ToUpdateRequest(this OidcClientCompleteDto data)
     {
         return MapForUpdate(data);
     }
 
-    public static OidcClientCreateDto ToCreateRequest(this OidcClientWithAllowedGroupsDto data)
+    public static OidcClientCreateDto ToCreateRequest(this OidcClientCompleteDto data)
     {
         return MapForCreate(data);
     }

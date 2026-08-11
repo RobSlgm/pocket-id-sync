@@ -9,9 +9,13 @@ sealed class AppApisApi(PocketIdClient pocketId)
 {
     public AppApisIdApi Id(string id) => new(pocketId, id);
 
-    public async Task<ApiResult<ApiResponseDto[]>> ListAsync(CancellationToken ct)
+    public async Task<ApiResult<ApiResponseDto[]>> ListAsync(string? searchQuery = null, CancellationToken ct = default)
     {
         var request = new RestRequest("/apis").AddQueryParameter("sort[column]", "name");
+        if (!string.IsNullOrWhiteSpace(searchQuery))
+        {
+            request.AddQueryParameter("search", searchQuery);
+        }
         var response = await pocketId.Api.ExecuteGetAsync<Paginated<ApiResponseDto>>(request, ct);
         if (response.IsSuccessful)
         {

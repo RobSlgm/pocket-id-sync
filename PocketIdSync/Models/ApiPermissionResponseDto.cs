@@ -28,6 +28,17 @@ sealed partial class ApiPermissionResponseDto
 sealed partial class ApiPermissionsUpdateDto
 {
     [UnorderedEquality]
-    public ApiPermissionInputDto[]? Permissions;
+    public ApiPermissionInputDto[]? Permissions { get; set; }
 }
 
+sealed partial class ClientApiAccessDto
+{
+    public required string[] UserDelegatedPermissionIds { get; set; }
+    public required string[] ClientPermissionIds { get; set; }
+}
+
+sealed partial class ClientApiAccessUpdateDto
+{
+    public string[]? UserDelegatedPermissionIds { get; set; }
+    public string[]? ClientPermissionIds { get; set; }
+}

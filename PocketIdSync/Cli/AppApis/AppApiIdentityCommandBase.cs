@@ -24,7 +24,7 @@ abstract class AppApiIdentityCommandBase : AuthorizationCommandBase
                 AnsiConsole.MarkupLine($"[red]✗ Either the application API Id or resource uri is required[/]");
                 return (ExitCode.BadRequest, null);
             }
-            var appapis = await pocketId.AppApis.ListAsync(ct);
+            var appapis = await pocketId.AppApis.ListAsync(searchQuery: null, ct);
             if (!appapis.IsSuccessful)
             {
                 AnsiConsole.MarkupLine($"[red]✗ Pocket ID application API search failed[/]");

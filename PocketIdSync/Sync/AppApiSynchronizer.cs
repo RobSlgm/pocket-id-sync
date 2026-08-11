@@ -28,7 +28,7 @@ sealed class AppApiSynchronizer : ISynchronizer<AppApiSyncItem>
 
     private async Task<(int ExitCode, AppApiSyncItem? Client, string? ErrorMessage)> MergeFromPocketIdAsync(PocketIdClient pocketId, CancellationToken ct)
     {
-        var allShortResponse = await pocketId.AppApis.ListAsync(ct);
+        var allShortResponse = await pocketId.AppApis.ListAsync(ct: ct);
         if (!allShortResponse.IsSuccessful)
         {
             return (ExitCode.FatalError, default, default);
@@ -47,7 +47,7 @@ sealed class AppApiSynchronizer : ISynchronizer<AppApiSyncItem>
 
     private async Task<(int ExitCode, AppApiSyncItem? Client, string? ErrorMessage)> MergeFromConfigurationAsync(PocketIdClient pocketId, SyncItemSelector? selector, CancellationToken ct)
     {
-        var allShortResponse = await pocketId.AppApis.ListAsync(ct);
+        var allShortResponse = await pocketId.AppApis.ListAsync(ct: ct);
         if (!allShortResponse.IsSuccessful)
         {
             return (ExitCode.FatalError, default, default);

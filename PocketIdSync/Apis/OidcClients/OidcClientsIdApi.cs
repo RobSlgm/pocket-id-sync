@@ -70,4 +70,30 @@ sealed class OidcClientsIdApi(PocketIdClient PocketId, string Id)
         }
         return response.Nok<SecretDto>(response.Content);
     }
+
+    public async Task<ApiResult<ClientApiAccessDto>> GetClientAccess(CancellationToken ct)
+    {
+        var request = new RestRequest("/api-access/{id}").AddUrlSegment("id", Id);
+        var response = await PocketId.Api.ExecuteGetAsync<ClientApiAccessDto>(request, ct);
+        if (response.IsSuccessful)
+        {
+            return response.Ok(response.Data);
+        }
+        // if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+        // {
+        //     return response.Ok<ClientApiAccessDto>();
+        // }
+        return response.Nok<ClientApiAccessDto>();
+    }
+
+    public async Task<ApiResult<ClientApiAccessDto>> UpdateClientAccess(ClientApiAccessUpdateDto body, CancellationToken ct)
+    {
+        var request = new RestRequest("/api-access/{id}").AddUrlSegment("id", Id).AddBody(body);
+        var response = await PocketId.Api.ExecutePutAsync<ClientApiAccessDto>(request, ct);
+        if (response.IsSuccessful)
+        {
+            return response.Ok(response.Data);
+        }
+        return response.Nok<ClientApiAccessDto>();
+    }
 }

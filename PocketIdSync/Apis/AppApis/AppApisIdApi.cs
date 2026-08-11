@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using PocketIdSync.Models;
 using RestSharp;
@@ -45,7 +44,7 @@ sealed class AppApisIdApi(PocketIdClient PocketId, string Id)
         return response.Nok<int>(response.Content);
     }
 
-    public async Task<ApiResult<ApiResponseDto>> PutPermissions(ApiPermissionInputDto[] data, CancellationToken ct)
+    public async Task<ApiResult<ApiResponseDto>> UpdatePermissions(ApiPermissionInputDto[] data, CancellationToken ct)
     {
         var body = new ApiPermissionsUpdateDto { Permissions = [.. data], };
         var request = new RestRequest("/apis/{id}/permissions").AddUrlSegment("id", Id).AddBody(body);

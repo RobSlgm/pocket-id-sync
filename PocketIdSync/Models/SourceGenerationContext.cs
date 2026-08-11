@@ -19,6 +19,8 @@ namespace PocketIdSync.Models;
 [JsonSerializable(typeof(OidcClientFederatedIdentityDto))]
 [JsonSerializable(typeof(OidcClientWithAllowedGroupsCountDto))]
 [JsonSerializable(typeof(OidcClientWithAllowedGroupsDto))]
+[JsonSerializable(typeof(ClientApiAccessDto))]
+[JsonSerializable(typeof(ClientApiAccessUpdateDto))]
 [JsonSerializable(typeof(UserDto))]
 [JsonSerializable(typeof(UserGroupDto))]
 [JsonSerializable(typeof(UserGroupSpec))]

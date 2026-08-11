@@ -236,7 +236,7 @@ sealed class SyncCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFact
                         AnsiConsole.MarkupLine($"[Orange3]✗ Pocket ID OidcClient [bold]{client.Name}[/] id({client.Id!}) is changed[/]");
                         if (Verbose)
                         {
-                            foreach (var diff in OidcClientSpec.EqualityComparer.Default.Inequalities(client.Local.Spec, client.Remote.ToKind().Spec))
+                            foreach (var diff in OidcClientSpec.EqualityComparer.Default.Inequalities(client.Local.Spec, client.Remote.ToKind(Namespace).Spec))
                             {
                                 AnsiConsole.MarkupLine($" - Difference: [Orange3]{AnsiMarkup.Escape(diff.ToString())}[/]");
                             }
@@ -255,7 +255,7 @@ sealed class SyncCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFact
                         }
                         if (client.Remote is not null)
                         {
-                            AnsiConsole.MarkupLine($"[gray bold]Remote[/]:\n{Yaml.Write(client.Remote.ToKind())}");
+                            AnsiConsole.MarkupLine($"[gray bold]Remote[/]:\n{Yaml.Write(client.Remote.ToKind(Namespace))}");
                             // AnsiConsole.MarkupLine($"[gray bold]Remote[/]:\n");
                             // JsonHelper.WriteConsole(client.Remote);
                         }

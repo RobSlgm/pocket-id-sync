@@ -334,6 +334,14 @@ sealed class OidcClientSynchronizer : ISynchronizer<OidcClientSyncItem>
                 return ExitCode.InvalidConfiguration;
             }
         }
+        if (!string.IsNullOrEmpty(selector.Id))
+        {
+            Items.RemoveAll(c => string.IsNullOrEmpty(c.Id) || !c.Id.Equals(selector.Id, StringComparison.OrdinalIgnoreCase));
+            if (Items.Count == 0)
+            {
+                return ExitCode.InvalidConfiguration;
+            }
+        }
         foreach (var client in Items)
         {
             if (client.Local is null || client.Local.Spec is null)

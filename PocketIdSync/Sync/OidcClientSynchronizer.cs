@@ -171,14 +171,6 @@ sealed class OidcClientSynchronizer : ISynchronizer<OidcClientSyncItem>
                         }
                     }
                 }
-                // TODO: Amend allowed groups (Check if groups in local and remote are changed)
-                var groups = await pocketId.OidcClients.Id(client.RemoteMerged.Id!).PutAllowedUserGroupsAsync(client.RemoteMerged.AllowedUserGroups, ct);
-                if (!groups.IsSuccessful)
-                {
-                    client.SetError($"AllowedGroups: {groups.ErrorMessage}");
-                    exitCode = ExitCode.GeneralError;
-                    continue;
-                }
             }
             foreach (var theme in Enum.GetValues<LogoThemeMode>())
             {

@@ -80,11 +80,16 @@ sealed class OidcClientRepository
         var baseResponse = clientId is null ?
             await pocketId.OidcClients.PostAsync(oidcClient.ToCreateRequest(), ct) :
             await pocketId.OidcClients.Id(oidcClient.Id!).PutAsync(oidcClient.ToUpdateRequest(), ct);
-        if (!baseResponse.IsSuccessful)
+        if (!baseResponse.IsSuccessful || baseResponse.Data is null)
         {
             return baseResponse;
         }
-        // TODO: ...
+        // TODO: Amend allowed groups (Check if groups in local and remote are changed)
+        var groups = await pocketId.OidcClients.Id(baseResponse.Data.Id!).PutAllowedUserGroupsAsync(oidcClient.AllowedUserGroups, ct);
+        if (!groups.IsSuccessful)
+        {
+            // TODO: error reporting?!
+        }
         return baseResponse;
     }
 }

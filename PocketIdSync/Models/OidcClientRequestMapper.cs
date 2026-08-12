@@ -1,7 +1,7 @@
-﻿using PocketIdSync.Models;
+﻿using System.Linq;
 using Riok.Mapperly.Abstractions;
 
-namespace PocketIdSync.ModelSpecs;
+namespace PocketIdSync.Models;
 
 [Mapper(ThrowOnMappingNullMismatch = false)]
 static partial class OidcClientRequestMapper
@@ -31,5 +31,14 @@ static partial class OidcClientRequestMapper
     public static OidcClientCreateDto ToCreateRequest(this OidcClientCompleteDto data)
     {
         return MapForCreate(data);
+    }
+
+    public static ClientApiAccessUpdateDto ToClientApiAccessUpdateRequest(this OidcClientCompleteDto data)
+    {
+        return new ClientApiAccessUpdateDto
+        {
+            ClientPermissionIds = data.ClientPermissions?.Select(p => p.Id!).ToArray(),
+            UserDelegatedPermissionIds = data.UserDelegatedPermissions?.Select(p => p.Id!).ToArray(),
+        };
     }
 }

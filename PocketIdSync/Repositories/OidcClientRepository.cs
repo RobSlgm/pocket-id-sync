@@ -84,9 +84,15 @@ sealed class OidcClientRepository
         {
             return baseResponse;
         }
-        // TODO: Amend allowed groups (Check if groups in local and remote are changed)
+        // TODO: Check if groups in local and remote are changed
         var groups = await pocketId.OidcClients.Id(baseResponse.Data.Id!).PutAllowedUserGroupsAsync(oidcClient.AllowedUserGroups, ct);
         if (!groups.IsSuccessful)
+        {
+            // TODO: error reporting?!
+        }
+        // TODO: Check if api permissions in local and remote are changed
+        var permissions = await pocketId.OidcClients.Id(baseResponse.Data.Id!).UpdateClientAccess(oidcClient.ToClientApiAccessUpdateRequest(), ct);
+        if (!permissions.IsSuccessful)
         {
             // TODO: error reporting?!
         }

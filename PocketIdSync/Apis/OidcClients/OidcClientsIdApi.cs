@@ -22,17 +22,6 @@ sealed class OidcClientsIdApi(PocketIdClient PocketId, string Id)
         {
             return response.Nok<OidcClientCompleteDto>();
         }
-        // var clientAccessRequest = new RestRequest("/api-access/{id}").AddUrlSegment("id", Id);
-        // var clientAccessResponse = await PocketId.Api.ExecuteGetAsync<ClientApiAccessDto>(clientAccessRequest, ct);
-        // if (!clientAccessResponse.IsSuccessful)
-        // {
-        //     return clientAccessResponse.Nok<OidcClientCompleteDto>();
-        // }
-        // if (clientAccessResponse.Data is not null)
-        // {
-        //     response.Data.UserDelegatedPermissions = clientAccessResponse.Data.UserDelegatedPermissionIds;
-        //     response.Data.ClientPermissions = clientAccessResponse.Data.ClientPermissionIds;
-        // }
         return response.Ok(response.Data);
     }
 

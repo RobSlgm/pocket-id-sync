@@ -16,6 +16,7 @@ sealed class OidcClientSynchronizer : ISynchronizer<OidcClientSyncItem>
     public List<OidcClientSyncItem> Items { get; private set; } = [];
     private Dictionary<string, UserGroupMinimalDto> UserGroups { get; } = new Dictionary<string, UserGroupMinimalDto>(StringComparer.OrdinalIgnoreCase);
     private readonly IConfigStoreOidcClient Configuration;
+    private readonly OidcClientRepository OidcClientRepository = new();
 
     public bool ForceLogoSynchronization { get; set; }
 
@@ -65,7 +66,7 @@ sealed class OidcClientSynchronizer : ISynchronizer<OidcClientSyncItem>
     {
         foreach (var client in Items)
         {
-            var clientSource = await pocketId.OidcClients.Id(client.Id!).GetAsync(ct);
+            var clientSource = await OidcClientRepository.GetAsync(pocketId, client.Id!, ct);
             if (clientSource.IsSuccessful)
             {
                 client.Remote = clientSource.Data;
@@ -110,7 +111,7 @@ sealed class OidcClientSynchronizer : ISynchronizer<OidcClientSyncItem>
             {
                 continue;
             }
-            var clientResponse = await pocketId.OidcClients.Id(clientShort.Id).GetAsync(ct);
+            var clientResponse = await OidcClientRepository.GetAsync(pocketId, clientShort.Id, ct);
             if (!clientResponse.IsSuccessful)
             {
                 return (ExitCode.FatalError, client, $"Merge failed {clientResponse.Status}");

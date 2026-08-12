@@ -48,8 +48,6 @@ static partial class OidcClientMapper
         {
             spec.LogoPath = $"{data.Id}.jpg";
         }
-        // spec.ClientPermission = ToPermissions(apiResolver, data.ClientPermissions);
-        // spec.UserDelegatedPermission = ToPermissions(apiResolver, data.UserDelegatedPermissions);
         return spec;
     }
 

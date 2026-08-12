@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using PocketIdSync.Apis;
 using PocketIdSync.Models;
-using PocketIdSync.ModelSpecs;
 
 namespace PocketIdSync.Repositories;
 

@@ -15,8 +15,6 @@ sealed class OidcClientFilestore : IConfigStoreOidcClient
 {
     private readonly DirectoryInfo Root;
     private readonly YamlHelper Yaml;
-    public AppApiResolver? Resolver { get; set; }
-
 
     public OidcClientFilestore(string rootPath, YamlHelper yamlHelper)
     {
@@ -44,7 +42,6 @@ sealed class OidcClientFilestore : IConfigStoreOidcClient
                 var client = new OidcClientSyncItem
                 {
                     Filename = specFile.FullName,
-                    Resolver = Resolver,
                 };
                 var readClient = await ReadFileAsync(client, ct);
                 if (readClient is null || client.HasError == true)
@@ -90,7 +87,6 @@ sealed class OidcClientFilestore : IConfigStoreOidcClient
             var client = new OidcClientSyncItem
             {
                 Filename = specFile.FullName,
-                Resolver = Resolver,
             };
             await ReadFileAsync(client, ct);
             clients.Add(client);
@@ -133,7 +129,7 @@ sealed class OidcClientFilestore : IConfigStoreOidcClient
             FileInfo specFile = new FileInfo(Path.Combine(Root.FullName, $"{client.Id}.yaml"));
             client.Filename = specFile.FullName;
         }
-        client.LocalMerged = client.Remote?.ToKind(client.Local, client.Resolver);
+        client.LocalMerged = client.Remote?.ToKind(client.Local);
         client.IsLocalDirty = !client.IsRemoteEqualLocal;
         return ExitCode.Success;
     }

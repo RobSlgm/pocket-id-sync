@@ -42,3 +42,11 @@ sealed partial class ClientApiAccessUpdateDto
     public string[]? UserDelegatedPermissionIds { get; set; }
     public string[]? ClientPermissionIds { get; set; }
 }
+
+[Equatable]
+sealed partial class ApiPermissionMinimalDto
+{
+    public required string Resource { get; set; }
+    public required string Key { get; set; }
+    public string? Id { get; set; }
+}

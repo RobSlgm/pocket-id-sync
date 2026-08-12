@@ -53,7 +53,6 @@ sealed class SyncCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFact
         {
             ForceLogoSynchronization = ForceLogoSynchronization,
         };
-        localStore.Resolver = sync.AppApiResolver;
         return sync;
     }
 

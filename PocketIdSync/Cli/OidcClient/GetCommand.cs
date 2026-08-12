@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using DotMake.CommandLine;
 using PocketIdSync.Apis;
 using PocketIdSync.ModelSpecs;
-using PocketIdSync.Sync;
+using PocketIdSync.Repositories;
 using PocketIdSync.Utils;
 using Spectre.Console;
 
@@ -25,16 +25,14 @@ sealed class GetCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFacto
     [CliOption(Description = "Download logo(s)", Alias = "logo", Required = false)]
     public bool IncludeLogos { get; set; }
 
-    [CliOption(Description = "Include application API permissions", Alias = "appapi", Required = false)]
-    public bool IncludeAppApis { get; set; } = true;
-
     [CliOption(Description = "Output format", Alias = "o", AllowedValues = ["json", "yaml", "console"], Arity = CliArgumentArity.ZeroOrOne)]
     public string Output { get; set; } = "console";
 
     public async Task<int> RunAsync(CliContext context)
     {
         var pocketId = HttpClientFactory.Connect(PocketIdUri, ApiKey);
-        var client = await pocketId.OidcClients.Id(ClientId).GetAsync(context.CancellationToken);
+        var oidcClientRepository = new OidcClientRepository();
+        var client = await oidcClientRepository.GetAsync(pocketId, ClientId, context.CancellationToken);
         if (!client.IsSuccessful)
         {
             AnsiConsole.MarkupLine($"[red]✗ Pocket ID call {client.Uri} failed: {client.Status}[/]");
@@ -45,15 +43,6 @@ sealed class GetCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFacto
             AnsiConsole.MarkupLine($"[red]✗ Pocket ID OidcClient [bold]{ClientId}[/] not found[/]");
             return ExitCode.BadRequest;
         }
-        var apiResolver = new AppApiResolver();
-        if (IncludeAppApis)
-        {
-            var apiResolverResponse = await apiResolver.Initialize(pocketId, context.CancellationToken);
-            if (!apiResolverResponse.IsSuccessful)
-            {
-                AnsiConsole.MarkupLine($"[red]✗ Pocket ID call {client.Uri} failed: {client.Status}[/]");
-            }
-        }
         switch (Output)
         {
             default:
@@ -62,7 +51,7 @@ sealed class GetCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFacto
                 break;
 
             case "yaml":
-                AnsiConsole.WriteLine(Yaml.Write(client.Data.ToKind(apiResolver: apiResolver)));
+                AnsiConsole.WriteLine(Yaml.Write(client.Data.ToKind()));
                 break;
         }
         if (IncludeLogos == true)

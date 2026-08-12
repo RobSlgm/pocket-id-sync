@@ -8,6 +8,6 @@ class OidcClientWithAllowedGroupsDto : OidcClientDto
 
 sealed class OidcClientCompleteDto : OidcClientWithAllowedGroupsDto
 {
-    public string[]? UserDelegatedPermissionIds { get; set; }
-    public string[]? ClientPermissionIds { get; set; }
+    public ApiPermissionMinimalDto[]? UserDelegatedPermissions { get; set; }
+    public ApiPermissionMinimalDto[]? ClientPermissions { get; set; }
 }

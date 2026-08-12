@@ -6,11 +6,12 @@ using PocketIdSync.Apis;
 using PocketIdSync.Models;
 using PocketIdSync.ModelSpecs;
 
-namespace PocketIdSync.Sync;
+namespace PocketIdSync.Repositories;
 
 sealed class AppApiResolver
 {
     public List<ApiResponseDto> AppApis = [];
+
     public async Task<ApiResult<ApiResponseDto[]>> Initialize(PocketIdClient pocketId, CancellationToken ct)
     {
         var clients = await pocketId.AppApis.ListAsync(ct: ct);
@@ -26,7 +27,7 @@ sealed class AppApiResolver
         return clients;
     }
 
-    public AppApiPermission? Find(string id)
+    public ApiPermissionMinimalDto? Find(string id)
     {
         foreach (var app in AppApis)
         {
@@ -34,10 +35,11 @@ sealed class AppApiResolver
             {
                 if (string.Equals(permission.Id, id, System.StringComparison.Ordinal))
                 {
-                    return new AppApiPermission
+                    return new ApiPermissionMinimalDto
                     {
                         Key = permission.Key!,
                         Resource = app.Resource!,
+                        Id = app.Id,
                     };
                 }
             }

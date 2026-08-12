@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using DotMake.CommandLine;
 using PocketIdSync.Apis;
 using PocketIdSync.Models;
-using PocketIdSync.Sync;
+using PocketIdSync.Repositories;
 using PocketIdSync.Utils;
 using Spectre.Console;
 

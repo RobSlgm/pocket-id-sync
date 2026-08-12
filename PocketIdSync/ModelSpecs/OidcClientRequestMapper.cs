@@ -7,8 +7,8 @@ namespace PocketIdSync.ModelSpecs;
 static partial class OidcClientRequestMapper
 {
     [MapperIgnoreSource(nameof(OidcClientCompleteDto.AllowedUserGroups))]
-    [MapperIgnoreSource(nameof(OidcClientCompleteDto.UserDelegatedPermissionIds))]
-    [MapperIgnoreSource(nameof(OidcClientCompleteDto.ClientPermissionIds))]
+    [MapperIgnoreSource(nameof(OidcClientCompleteDto.UserDelegatedPermissions))]
+    [MapperIgnoreSource(nameof(OidcClientCompleteDto.ClientPermissions))]
     [MapperIgnoreSource(nameof(OidcClientCompleteDto.PkceSupported))]
     [MapperIgnoreTarget(nameof(OidcClientCreateDto.LogoUrl))]
     [MapperIgnoreTarget(nameof(OidcClientCreateDto.DarkLogoUrl))]
@@ -16,8 +16,8 @@ static partial class OidcClientRequestMapper
 
     [MapperIgnoreSource(nameof(OidcClientCompleteDto.Id))]
     [MapperIgnoreSource(nameof(OidcClientCompleteDto.AllowedUserGroups))]
-    [MapperIgnoreSource(nameof(OidcClientCompleteDto.UserDelegatedPermissionIds))]
-    [MapperIgnoreSource(nameof(OidcClientCompleteDto.ClientPermissionIds))]
+    [MapperIgnoreSource(nameof(OidcClientCompleteDto.UserDelegatedPermissions))]
+    [MapperIgnoreSource(nameof(OidcClientCompleteDto.ClientPermissions))]
     [MapperIgnoreSource(nameof(OidcClientCompleteDto.PkceSupported))]
     [MapperIgnoreTarget(nameof(OidcClientUpdateDto.LogoUrl))]
     [MapperIgnoreTarget(nameof(OidcClientUpdateDto.DarkLogoUrl))]

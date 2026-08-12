@@ -1,16 +1,17 @@
-﻿
-using System.Collections.Generic;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using PocketIdSync.Apis;
 using PocketIdSync.Models;
+using PocketIdSync.ModelSpecs;
 
 namespace PocketIdSync.Repositories;
 
 sealed class OidcClientRepository
 {
-    private readonly AppApiResolver Resolver = new();
-    private bool IsInitialized = false;
+    private readonly AppApiResolver AppApiResolver = new();
+    private bool HasAppApiResolverData = false;
+    private readonly UserGroupResolver UserGroupResolver = new();
+    private bool HasUserGroupResolverData = false;
 
     public async Task<ApiResult<OidcClientCompleteDto>> GetAsync(PocketIdClient pocketId, string clientId, CancellationToken ct)
     {
@@ -19,45 +20,71 @@ sealed class OidcClientRepository
         {
             return client;
         }
+        // add usergroup information
+
+        // add api client access information
         var clientAccess = await pocketId.OidcClients.Id(clientId).GetClientAccess(ct);
         if (!clientAccess.IsSuccessful)
         {
             return client; // TODO: wrong return, must be error ...
         }
-        if (clientAccess.Data is null || (clientAccess.Data.ClientPermissionIds.Length == 0 && clientAccess.Data.UserDelegatedPermissionIds.Length == 0))
+        if (clientAccess.Data is not null && (clientAccess.Data.ClientPermissionIds.Length != 0 || clientAccess.Data.UserDelegatedPermissionIds.Length != 0))
         {
-            return client;
-        }
-        if (!IsInitialized)
-        {
-            var appApiResponse = await Resolver.Initialize(pocketId, ct);
-            if (!appApiResponse.IsSuccessful)
+            if (!HasAppApiResolverData)
             {
-                return client; // TODO: wrong return, must be error
+                var appApiResponse = await AppApiResolver.Initialize(pocketId, ct);
+                if (!appApiResponse.IsSuccessful)
+                {
+                    return client; // TODO: wrong return, must be error
+                }
+                HasAppApiResolverData = true;
             }
-            IsInitialized = true;
+            client.Data.ClientPermissions = AppApiResolver.ToPermissions(clientAccess.Data.ClientPermissionIds);
+            client.Data.UserDelegatedPermissions = AppApiResolver.ToPermissions(clientAccess.Data.UserDelegatedPermissionIds);
         }
-        client.Data.ClientPermissions = ToPermissions(clientAccess.Data.ClientPermissionIds);
-        client.Data.UserDelegatedPermissions = ToPermissions(clientAccess.Data.UserDelegatedPermissionIds);
 
         return client;
     }
 
-    private ApiPermissionMinimalDto[]? ToPermissions(string[]? permissionIds)
+    public async Task<ApiResult<OidcClientCompleteDto>?> AmendAsync(PocketIdClient pocketId, string? clientId, OidcClientSpec clientData, CancellationToken ct)
     {
-        if (permissionIds is null || permissionIds.Length == 0)
+        var oidcClient = clientData.FromKind();
+        if (clientData.ClientPermissions is not null || clientData.UserDelegatedPermissions is not null)
         {
-            return null;
-        }
-        var permissions = new List<ApiPermissionMinimalDto>();
-        foreach (var pid in permissionIds)
-        {
-            var permission = Resolver.Find(pid);
-            if (permission is not null)
+            if (!HasAppApiResolverData)
             {
-                permissions.Add(permission);
+                var appApiResponse = await AppApiResolver.Initialize(pocketId, ct);
+                if (!appApiResponse.IsSuccessful)
+                {
+                    return null; // TODO: wrong return, must be error
+                }
+                HasAppApiResolverData = true;
             }
+            oidcClient.ClientPermissions = AppApiResolver.ToPermissions(clientData.ClientPermissions);
+            oidcClient.UserDelegatedPermissions = AppApiResolver.ToPermissions(clientData.UserDelegatedPermissions);
         }
-        return permissions.Count > 0 ? [.. permissions] : null;
+        if (oidcClient.IsGroupRestricted == true)
+        {
+            if (!HasUserGroupResolverData)
+            {
+                var userGroupResponse = await UserGroupResolver.Initialize(pocketId, ct);
+                if (!userGroupResponse.IsSuccessful)
+                {
+                    return null; // TODO: wrong return, must be error
+                }
+                HasUserGroupResolverData = true;
+            }
+            oidcClient.AllowedUserGroups = UserGroupResolver.ToGroups(clientData.AllowedGroups);
+        }
+
+        var baseResponse = clientId is null ?
+            await pocketId.OidcClients.PostAsync(oidcClient.ToCreateRequest(), ct) :
+            await pocketId.OidcClients.Id(oidcClient.Id!).PutAsync(oidcClient.ToUpdateRequest(), ct);
+        if (!baseResponse.IsSuccessful)
+        {
+            return baseResponse;
+        }
+        // TODO: ...
+        return baseResponse;
     }
 }

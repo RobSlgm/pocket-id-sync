@@ -61,7 +61,6 @@ sealed class OidcClientsIdApi(PocketIdClient PocketId, string Id)
 
     public async Task<ApiResult<SecretDto>> SetSecretAsync(CancellationToken ct)
     {
-        // var body = new UpdateAllowedUserGroupsDto { UserGroupIds = data.Select(g => g.Id).ToArray()! };
         var request = new RestRequest("/oidc/clients/{id}/secret").AddUrlSegment("id", Id);
         var response = await PocketId.Api.ExecutePostAsync<SecretDto>(request, ct);
         if (response.IsSuccessful)
@@ -79,10 +78,6 @@ sealed class OidcClientsIdApi(PocketIdClient PocketId, string Id)
         {
             return response.Ok(response.Data);
         }
-        // if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
-        // {
-        //     return response.Ok<ClientApiAccessDto>();
-        // }
         return response.Nok<ClientApiAccessDto>();
     }
 

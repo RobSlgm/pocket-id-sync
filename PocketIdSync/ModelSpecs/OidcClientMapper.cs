@@ -96,19 +96,19 @@ static partial class OidcClientMapper
         return kind;
     }
 
-    public static OidcClientCompleteDto FromKind(this OidcClientSpec spec, Dictionary<string, UserGroupMinimalDto> userGroups)
+    public static OidcClientCompleteDto FromKind(this OidcClientSpec spec)
     {
         var data = Map(spec);
-        if (spec.AllowedGroups is not null && spec.AllowedGroups.Length > 0)
-        {
-            foreach (var groupName in spec.AllowedGroups)
-            {
-                if (userGroups.TryGetValue(groupName, out var ug))
-                {
-                    data.AllowedUserGroups = [.. data.AllowedUserGroups, ug];
-                }
-            }
-        }
+        // if (spec.AllowedGroups is not null && spec.AllowedGroups.Length > 0)
+        // {
+        //     foreach (var groupName in spec.AllowedGroups)
+        //     {
+        //         if (userGroups.TryGetValue(groupName, out var ug))
+        //         {
+        //             data.AllowedUserGroups = [.. data.AllowedUserGroups, ug];
+        //         }
+        //     }
+        // }
         data.HasLogo = !string.IsNullOrEmpty(spec.LogoPath);
         data.HasDarkLogo = !string.IsNullOrEmpty(spec.LogoDarkPath);
         data.IsGroupRestricted = spec.AllowedGroups?.Length > 0;

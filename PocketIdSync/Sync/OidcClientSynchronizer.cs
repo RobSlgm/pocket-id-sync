@@ -51,11 +51,6 @@ sealed class OidcClientSynchronizer : ISynchronizer<OidcClientSyncItem>
         {
             return (ExitCode.FatalError, default, "UserGroups");
         }
-        // var appApiResult = await AppApiResolver.Initialize(pocketId, ct);
-        // if (!appApiResult.IsSuccessful)
-        // {
-        //     return (ExitCode.FatalError, default, "UserGroups");
-        // }
         return direction == SynchronizationTarget.PocketID ?
           await MergeFromPocketIdAsync(pocketId, ct) :
           await MergeFromConfigurationAsync(pocketId, selector, ct);
@@ -138,33 +133,25 @@ sealed class OidcClientSynchronizer : ISynchronizer<OidcClientSyncItem>
         foreach (var client in Items.Where(c => (c.IsRemoteEqualLocal == false || ForceLogoSynchronization == true) && c.HasError == false))
         {
             if (client.Local?.Spec is null) continue;
-            var oidcClient = client.Local.Spec.FromKind(UserGroups);
             if (client.IsRemoteEqualLocal == false)
             {
-                if (client.Remote is not null)
+                var amendResponse = await OidcClientRepository.AmendAsync(pocketId, client.Remote?.Id, client.Local.Spec, ct);
+                if (amendResponse is null || !amendResponse.IsSuccessful)
                 {
-                    var update = await pocketId.OidcClients.Id(oidcClient.Id!).PutAsync(oidcClient.ToUpdateRequest(), ct);
-                    if (!update.IsSuccessful)
-                    {
-                        client.SetError(update.ErrorMessage);
-                        exitCode = ExitCode.GeneralError;
-                        continue;
-                    }
-                    client.RemoteMerged = update.Data;
+                    client.SetError(amendResponse?.ErrorMessage);
+                    exitCode = ExitCode.GeneralError;
+                    continue;
                 }
-                else
+                client.RemoteMerged = amendResponse.Data;
+                if (client.RemoteMerged is null)
                 {
-                    var create = await pocketId.OidcClients.PostAsync(oidcClient.ToCreateRequest(), ct);
-                    if (!create.IsSuccessful)
+                    continue; // keep compiler happy...
+                }
+                if (client.Remote is null)
+                {
+                    if (client.RemoteMerged.IsPublic == false)
                     {
-                        client.SetError(create.ErrorMessage);
-                        exitCode = ExitCode.GeneralError;
-                        continue;
-                    }
-                    client.RemoteMerged = create.Data;
-                    if (oidcClient.IsPublic == false)
-                    {
-                        var secret = await pocketId.OidcClients.Id(oidcClient.Id!).SetSecretAsync(ct);
+                        var secret = await pocketId.OidcClients.Id(client.RemoteMerged.Id!).SetSecretAsync(ct);
                         if (!secret.IsSuccessful)
                         {
                             client.SetError($"Secret: {secret.ErrorMessage}");
@@ -185,7 +172,7 @@ sealed class OidcClientSynchronizer : ISynchronizer<OidcClientSyncItem>
                     }
                 }
                 // TODO: Amend allowed groups (Check if groups in local and remote are changed)
-                var groups = await pocketId.OidcClients.Id(oidcClient.Id!).PutAllowedUserGroupsAsync(oidcClient.AllowedUserGroups, ct);
+                var groups = await pocketId.OidcClients.Id(client.RemoteMerged.Id!).PutAllowedUserGroupsAsync(client.RemoteMerged.AllowedUserGroups, ct);
                 if (!groups.IsSuccessful)
                 {
                     client.SetError($"AllowedGroups: {groups.ErrorMessage}");

@@ -1,5 +1,4 @@
-﻿
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using PocketIdSync.Apis;
@@ -14,17 +13,17 @@ sealed class AppApiResolver
 
     public async Task<ApiResult<ApiResponseDto[]>> Initialize(PocketIdClient pocketId, CancellationToken ct)
     {
-        var clients = await pocketId.AppApis.ListAsync(ct: ct);
-        if (!clients.IsSuccessful)
+        var response = await pocketId.AppApis.ListAsync(ct: ct);
+        if (!response.IsSuccessful)
         {
-            return clients;
+            return response;
         }
-        if (clients.Data is not null)
+        if (response.Data is not null)
         {
             AppApis.Clear();
-            AppApis.AddRange(clients.Data);
+            AppApis.AddRange(response.Data);
         }
-        return clients;
+        return response;
     }
 
     public ApiPermissionMinimalDto? Find(string id)
@@ -47,19 +46,66 @@ sealed class AppApiResolver
         return null;
     }
 
-    public string? Find(AppApiPermission permission)
+    public ApiPermissionMinimalDto? Find(AppApiPermission permission)
     {
         var app = AppApis.Find(a => string.Equals(a.Resource, permission.Resource, System.StringComparison.Ordinal));
-        if (app is not null)
+        if (app is not null && app.Resource is not null)
         {
             foreach (var p in app.Permissions)
             {
                 if (string.Equals(p.Key, permission.Key, System.StringComparison.Ordinal))
                 {
-                    return p.Id;
+                    return new ApiPermissionMinimalDto
+                    {
+                        Key = p.Key!,
+                        Resource = app.Resource,
+                        Id = p.Id,
+                    };
                 }
             }
         }
         return null;
+    }
+}
+
+static class AppApiResolverExtensions
+{
+    extension(AppApiResolver resolver)
+    {
+        public ApiPermissionMinimalDto[]? ToPermissions(string[]? permissionIds)
+        {
+            if (permissionIds is null || permissionIds.Length == 0)
+            {
+                return null;
+            }
+            var permissions = new List<ApiPermissionMinimalDto>();
+            foreach (var pid in permissionIds)
+            {
+                var permission = resolver.Find(pid);
+                if (permission is not null)
+                {
+                    permissions.Add(permission);
+                }
+            }
+            return permissions.Count > 0 ? [.. permissions] : null;
+        }
+
+        public ApiPermissionMinimalDto[]? ToPermissions(AppApiPermission[]? permissionRefs)
+        {
+            if (permissionRefs is null || permissionRefs.Length == 0)
+            {
+                return null;
+            }
+            var permissions = new List<ApiPermissionMinimalDto>();
+            foreach (var permRef in permissionRefs)
+            {
+                var permission = resolver.Find(permRef);
+                if (permission is not null)
+                {
+                    permissions.Add(permission);
+                }
+            }
+            return permissions.Count > 0 ? [.. permissions] : null;
+        }
     }
 }

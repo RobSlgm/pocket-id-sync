@@ -10,6 +10,7 @@ sealed class OidcClientSyncItem : ISyncItem<OidcClientKind, OidcClientCompleteDt
     public string? Name { get; set; }
     public string? Id { get; set; }
     public string? Secret { get; set; }
+    public AppApiResolver? Resolver { get; set; }
 
     public OidcClientKind? Local
     {
@@ -41,7 +42,7 @@ sealed class OidcClientSyncItem : ISyncItem<OidcClientKind, OidcClientCompleteDt
             IsRemoteEqualLocal = false;
             return IsRemoteEqualLocal;
         }
-        var remoteSpec = Remote.ToKind(Local, null);// TODO: AppApiResolver
+        var remoteSpec = Remote.ToKind(Local, Resolver);// TODO: AppApiResolver
         IsRemoteEqualLocal = Local.Spec == remoteSpec.Spec;
         return IsRemoteEqualLocal;
     }

@@ -15,7 +15,7 @@ sealed class OidcClientSynchronizer : ISynchronizer<OidcClientSyncItem>
     public List<OidcClientSyncItem> Items { get; private set; } = [];
     private Dictionary<string, UserGroupMinimalDto> UserGroups { get; } = new Dictionary<string, UserGroupMinimalDto>(StringComparer.OrdinalIgnoreCase);
     private readonly IConfigStoreOidcClient Configuration;
-    private readonly AppApiResolver AppApiResolver = new();
+    public readonly AppApiResolver AppApiResolver = new();
 
     public bool ForceLogoSynchronization { get; set; }
 
@@ -105,6 +105,7 @@ sealed class OidcClientSynchronizer : ISynchronizer<OidcClientSyncItem>
             {
                 Id = clientShort.Id,
                 Name = clientShort.Name,
+                Resolver = AppApiResolver,
             };
             if (!client.IsMatch(selector))
             {

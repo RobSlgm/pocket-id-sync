@@ -136,38 +136,31 @@ sealed class OidcClientSynchronizer : ISynchronizer<OidcClientSyncItem>
             if (client.IsRemoteEqualLocal == false)
             {
                 var amendResponse = await OidcClientRepository.AmendAsync(pocketId, client.Remote?.Id, client.Local.Spec, ct);
-                if (amendResponse is null || !amendResponse.IsSuccessful)
+                if (amendResponse is null || !amendResponse.IsSuccessful || amendResponse.Data is null)
                 {
                     client.SetError(amendResponse?.ErrorMessage);
                     exitCode = ExitCode.GeneralError;
                     continue;
                 }
                 client.RemoteMerged = amendResponse.Data;
-                if (client.RemoteMerged is null)
+                if (client.Remote is null && client.RemoteMerged.IsPublic == false)
                 {
-                    continue; // keep compiler happy...
-                }
-                if (client.Remote is null)
-                {
-                    if (client.RemoteMerged.IsPublic == false)
+                    var secret = await pocketId.OidcClients.Id(client.RemoteMerged.Id!).SetSecretAsync(ct);
+                    if (!secret.IsSuccessful)
                     {
-                        var secret = await pocketId.OidcClients.Id(client.RemoteMerged.Id!).SetSecretAsync(ct);
-                        if (!secret.IsSuccessful)
+                        client.SetError($"Secret: {secret.ErrorMessage}");
+                        exitCode = ExitCode.GeneralError;
+                        continue;
+                    }
+                    if (secret.Data is not null && !string.IsNullOrEmpty(secret.Data.Secret))
+                    {
+                        client.Secret = secret.Data.Secret;
+                        var secretResponse = await WriteSecret(client, secret.Data.Secret, ct);
+                        if (secretResponse != ExitCode.Success)
                         {
-                            client.SetError($"Secret: {secret.ErrorMessage}");
-                            exitCode = ExitCode.GeneralError;
+                            client.SetError("Secret not retrieved");
+                            exitCode = secretResponse;
                             continue;
-                        }
-                        if (secret.Data is not null && !string.IsNullOrEmpty(secret.Data.Secret))
-                        {
-                            client.Secret = secret.Data.Secret;
-                            var secretResponse = await WriteSecret(client, secret.Data.Secret, ct);
-                            if (secretResponse != ExitCode.Success)
-                            {
-                                client.SetError("Secret not retrieved");
-                                exitCode = secretResponse;
-                                continue;
-                            }
                         }
                     }
                 }

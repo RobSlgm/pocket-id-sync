@@ -18,7 +18,7 @@ static class ApiResultExtensions
 
         public ApiResult<T> Nok<T>(string? msg = null)
         {
-            return new ApiResult<T>(IsSuccessful: false, response.StatusCode, Uri: response.ResponseUri, ErrorMessage: msg);
+            return new ApiResult<T>(IsSuccessful: false, response.StatusCode, Uri: response.ResponseUri, ErrorMessage: msg ?? response.ErrorMessage);
         }
     }
 

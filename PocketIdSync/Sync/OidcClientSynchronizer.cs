@@ -135,7 +135,14 @@ sealed class OidcClientSynchronizer : ISynchronizer<OidcClientSyncItem>
             if (client.Local?.Spec is null) continue;
             if (client.IsRemoteEqualLocal == false)
             {
-                var amendResponse = await OidcClientRepository.AmendAsync(pocketId, client.Remote?.Id, client.Local.Spec, ct);
+                var (convertExitCode, oidcClient, convertErrorMessage) = await OidcClientRepository.FromKindAsync(pocketId, client.Local.Spec, ct);
+                if (convertExitCode != ExitCode.Success || oidcClient is null)
+                {
+                    client.SetError(convertErrorMessage);
+                    exitCode = convertExitCode;
+                    continue;
+                }
+                var amendResponse = await OidcClientRepository.AmendAsync(pocketId, client.Remote?.Id, oidcClient, ct);
                 if (amendResponse is null || !amendResponse.IsSuccessful || amendResponse.Data is null)
                 {
                     client.SetError(amendResponse?.ErrorMessage);

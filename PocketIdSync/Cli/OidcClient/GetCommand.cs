@@ -35,7 +35,7 @@ sealed class GetCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFacto
         var client = await oidcClientRepository.GetAsync(pocketId, ClientId, context.CancellationToken);
         if (!client.IsSuccessful)
         {
-            AnsiConsole.MarkupLine($"[red]✗ Pocket ID call {client.Uri} failed: {client.Status}[/]");
+            AnsiConsole.MarkupLine($"[red]✗ Pocket ID call {client.Uri} failed: {client.Status}[/] {client.ErrorMessage}");
             return ExitCode.BadRequest;
         }
         if (client.Data is null)

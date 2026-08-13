@@ -3,15 +3,13 @@ using PocketIdSync.ModelSpecs;
 
 namespace PocketIdSync.Sync;
 
-sealed class OidcClientSyncItem : ISyncItem<OidcClientKind, OidcClientCompleteDto>
+sealed class ApiSyncItem : ISyncItem<OidcClientApiKind, ApiResponseDto>
 {
     public string? Filename { get; set; }
     public string? Namespace { get; set; }
     public string? Name { get; set; }
     public string? Id { get; set; }
-    public string? Secret { get; set; }
-
-    public OidcClientKind? Local
+    public OidcClientApiKind? Local
     {
         get;
         set
@@ -20,9 +18,8 @@ sealed class OidcClientSyncItem : ISyncItem<OidcClientKind, OidcClientCompleteDt
             Verify();
         }
     }
-    public OidcClientKind? LocalMerged { get; set; }
-
-    public OidcClientCompleteDto? Remote
+    public OidcClientApiKind? LocalMerged { get; set; }
+    public ApiResponseDto? Remote
     {
         get;
         set
@@ -31,7 +28,7 @@ sealed class OidcClientSyncItem : ISyncItem<OidcClientKind, OidcClientCompleteDt
             Verify();
         }
     }
-    public OidcClientCompleteDto? RemoteMerged { get; set; }
+    public ApiResponseDto? RemoteMerged { get; set; }
     public bool IsRemoteEqualLocal { get; private set; }
 
     private bool Verify()
@@ -41,7 +38,7 @@ sealed class OidcClientSyncItem : ISyncItem<OidcClientKind, OidcClientCompleteDt
             IsRemoteEqualLocal = false;
             return IsRemoteEqualLocal;
         }
-        var remoteSpec = Remote.ToKind(Local);
+        var remoteSpec = Remote.ToKind();
         IsRemoteEqualLocal = Local.Spec == remoteSpec.Spec;
         return IsRemoteEqualLocal;
     }
@@ -60,9 +57,10 @@ sealed class OidcClientSyncItem : ISyncItem<OidcClientKind, OidcClientCompleteDt
     }
 }
 
-internal static class OidcClientSyncItemExtensions
+
+internal static class ApiSyncItemExtensions
 {
-    extension(OidcClientSyncItem Item)
+    extension(ApiSyncItem Item)
     {
         public bool IsMatch(SyncItemSelector? selector)
         {

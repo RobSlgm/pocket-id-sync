@@ -31,7 +31,7 @@ sealed class DeleteCommand(IHttpClientFactory HttpClientFactory) : Authorization
             AnsiConsole.MarkupLine($"[Orange1]✓ Pocket ID OidcClient [bold]{ClientId}[/] not found, nothing to do[/]");
             return ExitCode.Success;
         }
-        AnsiConsole.MarkupLine($"[green]✓ Pocket ID UserGroup [bold]{ClientId}[/] deleted[/]");
+        AnsiConsole.MarkupLine($"[green]✓ Pocket ID OidcClient [bold]{ClientId}[/] deleted[/]");
         return ExitCode.Success;
     }
 }

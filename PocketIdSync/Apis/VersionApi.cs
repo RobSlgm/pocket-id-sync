@@ -11,16 +11,16 @@ sealed class VersionApi(PocketIdClient PocketId)
     {
         var requestCurrent = new RestRequest("/version/current");
         var responseCurrent = await PocketId.Api.ExecuteGetAsync<VersionInfoDto>(requestCurrent, ct);
-        if (!responseCurrent.IsSuccessful)
+        if (!responseCurrent.IsSuccessful || responseCurrent.Data is null)
         {
-            responseCurrent.Nok<VersionInfoDto>();
+            return responseCurrent.Nok<VersionInfoDto>();
         }
         var result = responseCurrent.Ok(responseCurrent.Data);
         var requestLatest = new RestRequest("/version/latest");
         var responseLatest = await PocketId.Api.ExecuteGetAsync<VersionInfoDto>(requestLatest, ct);
         if (!responseLatest.IsSuccessful)
         {
-            responseCurrent.Nok<VersionInfoDto>();
+            return responseCurrent.Nok<VersionInfoDto>();
         }
         result.Data!.LatestVersion = responseLatest.Data?.LatestVersion;
         return result;

@@ -4,12 +4,11 @@ using DotMake.CommandLine;
 namespace PocketIdSync.Cli.Server;
 
 [CliCommand(
-    Description = "Manage Pocket ID server instance splash graphic",
+    Description = "Manage API keys to access Pocket ID",
     ShortFormAutoGenerate = CliNameAutoGenerate.Options,
-    Name = "image",
     Parent = typeof(ServerCommand)
 )]
-sealed class ServerImagesCommand
+sealed class ApiKeyCommand
 {
 #pragma warning disable CA1822 // Mark members as static
     public Task<int> RunAsync(CliContext context)

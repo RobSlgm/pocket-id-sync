@@ -1,6 +1,6 @@
 ﻿using DotMake.CommandLine;
 
-namespace PocketIdSync.Cli.ApiKeys;
+namespace PocketIdSync.Cli.Server.ApiKeys;
 
 abstract class ApiKeyIdentificationCommandBase : AuthorizationCommandBase
 {

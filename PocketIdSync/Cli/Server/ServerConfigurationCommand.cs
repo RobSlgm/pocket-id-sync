@@ -4,7 +4,7 @@ using DotMake.CommandLine;
 namespace PocketIdSync.Cli.Server;
 
 [CliCommand(
-    Description = "Read and write Pocket ID server instance configuration",
+    Description = "Manage Pocket ID server instance application configuration",
     ShortFormAutoGenerate = CliNameAutoGenerate.Options,
     Name = "config",
     Parent = typeof(ServerCommand)

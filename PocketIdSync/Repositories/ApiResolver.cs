@@ -1,0 +1,122 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using PocketIdSync.Apis;
+using PocketIdSync.Models;
+using PocketIdSync.ModelSpecs;
+
+namespace PocketIdSync.Repositories;
+
+sealed class ApiResolver
+{
+    public List<ApiResponseDto> Apis = [];
+
+    public async Task<ApiResult<ApiResponseDto[]>> Initialize(PocketIdClient pocketId, CancellationToken ct)
+    {
+        var response = await pocketId.Apis.ListAsync(ct: ct);
+        if (!response.IsSuccessful)
+        {
+            return response;
+        }
+        if (response.Data is not null)
+        {
+            Apis.Clear();
+            Apis.AddRange(response.Data);
+        }
+        return response;
+    }
+
+    public ApiPermissionMinimalDto? Find(string id)
+    {
+        foreach (var app in Apis)
+        {
+            foreach (var permission in app.Permissions)
+            {
+                if (string.Equals(permission.Id, id, System.StringComparison.Ordinal))
+                {
+                    return new ApiPermissionMinimalDto
+                    {
+                        Key = permission.Key!,
+                        Resource = app.Resource!,
+                        Id = app.Id,
+                    };
+                }
+            }
+        }
+        return null;
+    }
+
+    public ApiPermissionMinimalDto? Find(ApiPermission permission)
+    {
+        var app = Apis.Find(a => string.Equals(a.Resource, permission.Resource, System.StringComparison.Ordinal));
+        if (app is not null && app.Resource is not null)
+        {
+            foreach (var p in app.Permissions)
+            {
+                if (string.Equals(p.Key, permission.Key, System.StringComparison.Ordinal))
+                {
+                    return new ApiPermissionMinimalDto
+                    {
+                        Key = p.Key!,
+                        Resource = app.Resource,
+                        Id = p.Id,
+                    };
+                }
+            }
+        }
+        return null;
+    }
+}
+
+static class ApiResolverExtensions
+{
+    extension(ApiResolver resolver)
+    {
+        public ApiPermissionMinimalDto[]? ToPermissions(string[]? permissionIds)
+        {
+            if (permissionIds is null || permissionIds.Length == 0)
+            {
+                return null;
+            }
+            var permissions = new List<ApiPermissionMinimalDto>();
+            foreach (var pid in permissionIds)
+            {
+                var permission = resolver.Find(pid);
+                if (permission is not null)
+                {
+                    permissions.Add(permission);
+                }
+                else
+                {
+                    // throw as we loaded all possible client API permissions.
+                    // A mismatch is a severe violation on the target system
+                    throw new InvalidOperationException($"Missing API permission: {pid}");
+                }
+            }
+            return permissions.Count > 0 ? [.. permissions] : null;
+        }
+
+        public (int ExitCode, ApiPermissionMinimalDto[]? Permissions, string? ErrorMessage) TryConvert(ApiPermission[]? permissionRefs)
+        {
+            if (permissionRefs is null || permissionRefs.Length == 0)
+            {
+                return (ExitCode.Success, null, null);
+            }
+            var permissions = new List<ApiPermissionMinimalDto>();
+            foreach (var permRef in permissionRefs)
+            {
+                var permission = resolver.Find(permRef);
+                if (permission is not null)
+                {
+                    permissions.Add(permission);
+                }
+                else
+                {
+                    return (ExitCode.BadRequest, null, $"{permRef.Resource} {permRef.Key}");
+                }
+            }
+            return (ExitCode.Success, permissions.Count > 0 ? [.. permissions] : null, null);
+        }
+    }
+}

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using PocketIdSync.Apis;
 using PocketIdSync.Models;
 using PocketIdSync.ModelSpecs;
+using PocketIdSync.Repositories;
 using PocketIdSync.Utils;
 
 namespace PocketIdSync.Sync;
@@ -15,6 +16,7 @@ sealed class OidcClientSynchronizer : ISynchronizer<OidcClientSyncItem>
     public List<OidcClientSyncItem> Items { get; private set; } = [];
     private Dictionary<string, UserGroupMinimalDto> UserGroups { get; } = new Dictionary<string, UserGroupMinimalDto>(StringComparer.OrdinalIgnoreCase);
     private readonly IConfigStoreOidcClient Configuration;
+    private readonly OidcClientRepository OidcClientRepository = new();
 
     public bool ForceLogoSynchronization { get; set; }
 
@@ -59,7 +61,7 @@ sealed class OidcClientSynchronizer : ISynchronizer<OidcClientSyncItem>
     {
         foreach (var client in Items)
         {
-            var clientSource = await pocketId.OidcClients.Id(client.Id!).GetAsync(ct);
+            var clientSource = await OidcClientRepository.GetAsync(pocketId, client.Id!, ct);
             if (clientSource.IsSuccessful)
             {
                 client.Remote = clientSource.Data;
@@ -104,7 +106,7 @@ sealed class OidcClientSynchronizer : ISynchronizer<OidcClientSyncItem>
             {
                 continue;
             }
-            var clientResponse = await pocketId.OidcClients.Id(clientShort.Id).GetAsync(ct);
+            var clientResponse = await OidcClientRepository.GetAsync(pocketId, clientShort.Id, ct);
             if (!clientResponse.IsSuccessful)
             {
                 return (ExitCode.FatalError, client, $"Merge failed {clientResponse.Status}");
@@ -131,59 +133,43 @@ sealed class OidcClientSynchronizer : ISynchronizer<OidcClientSyncItem>
         foreach (var client in Items.Where(c => (c.IsRemoteEqualLocal == false || ForceLogoSynchronization == true) && c.HasError == false))
         {
             if (client.Local?.Spec is null) continue;
-            var oidcClient = client.Local.Spec.FromKind(UserGroups);
             if (client.IsRemoteEqualLocal == false)
             {
-                if (client.Remote is not null)
+                var (convertExitCode, oidcClient, convertErrorMessage) = await OidcClientRepository.FromKindAsync(pocketId, client.Local.Spec, ct);
+                if (convertExitCode != ExitCode.Success || oidcClient is null)
                 {
-                    var update = await pocketId.OidcClients.Id(oidcClient.Id!).PutAsync(oidcClient.ToUpdateRequest(), ct);
-                    if (!update.IsSuccessful)
-                    {
-                        client.SetError(update.ErrorMessage);
-                        exitCode = ExitCode.GeneralError;
-                        continue;
-                    }
-                    client.RemoteMerged = update.Data;
+                    client.SetError(convertErrorMessage);
+                    exitCode = convertExitCode;
+                    continue;
                 }
-                else
+                var amendResponse = await OidcClientRepository.AmendAsync(pocketId, client.Remote?.Id, oidcClient, ct);
+                if (amendResponse is null || !amendResponse.IsSuccessful || amendResponse.Data is null)
                 {
-                    var create = await pocketId.OidcClients.PostAsync(oidcClient.ToCreateRequest(), ct);
-                    if (!create.IsSuccessful)
-                    {
-                        client.SetError(create.ErrorMessage);
-                        exitCode = ExitCode.GeneralError;
-                        continue;
-                    }
-                    client.RemoteMerged = create.Data;
-                    if (oidcClient.IsPublic == false)
-                    {
-                        var secret = await pocketId.OidcClients.Id(oidcClient.Id!).SetSecretAsync(ct);
-                        if (!secret.IsSuccessful)
-                        {
-                            client.SetError($"Secret: {secret.ErrorMessage}");
-                            exitCode = ExitCode.GeneralError;
-                            continue;
-                        }
-                        if (secret.Data is not null && !string.IsNullOrEmpty(secret.Data.Secret))
-                        {
-                            client.Secret = secret.Data.Secret;
-                            var secretResponse = await WriteSecret(client, secret.Data.Secret, ct);
-                            if (secretResponse != ExitCode.Success)
-                            {
-                                client.SetError("Secret not retrieved");
-                                exitCode = secretResponse;
-                                continue;
-                            }
-                        }
-                    }
-                }
-                // TODO: Amend allowed groups (Check if groups in local and remote are changed)
-                var groups = await pocketId.OidcClients.Id(oidcClient.Id!).PutAllowedUserGroupsAsync(oidcClient.AllowedUserGroups, ct);
-                if (!groups.IsSuccessful)
-                {
-                    client.SetError($"AllowedGroups: {groups.ErrorMessage}");
+                    client.SetError(amendResponse?.ErrorMessage);
                     exitCode = ExitCode.GeneralError;
                     continue;
+                }
+                client.RemoteMerged = amendResponse.Data;
+                if (client.Remote is null && client.RemoteMerged.IsPublic == false)
+                {
+                    var secret = await pocketId.OidcClients.Id(client.RemoteMerged.Id!).SetSecretAsync(ct);
+                    if (!secret.IsSuccessful)
+                    {
+                        client.SetError($"Secret: {secret.ErrorMessage}");
+                        exitCode = ExitCode.GeneralError;
+                        continue;
+                    }
+                    if (secret.Data is not null && !string.IsNullOrEmpty(secret.Data.Secret))
+                    {
+                        client.Secret = secret.Data.Secret;
+                        var secretResponse = await WriteSecret(client, secret.Data.Secret, ct);
+                        if (secretResponse != ExitCode.Success)
+                        {
+                            client.SetError("Secret not retrieved");
+                            exitCode = secretResponse;
+                            continue;
+                        }
+                    }
                 }
             }
             foreach (var theme in Enum.GetValues<LogoThemeMode>())
@@ -322,6 +308,14 @@ sealed class OidcClientSynchronizer : ISynchronizer<OidcClientSyncItem>
         if (!string.IsNullOrEmpty(selector.Name))
         {
             Items.RemoveAll(c => string.IsNullOrEmpty(c.Name) || !c.Name.Equals(selector.Name, StringComparison.OrdinalIgnoreCase));
+            if (Items.Count == 0)
+            {
+                return ExitCode.InvalidConfiguration;
+            }
+        }
+        if (!string.IsNullOrEmpty(selector.Id))
+        {
+            Items.RemoveAll(c => string.IsNullOrEmpty(c.Id) || !c.Id.Equals(selector.Id, StringComparison.OrdinalIgnoreCase));
             if (Items.Count == 0)
             {
                 return ExitCode.InvalidConfiguration;

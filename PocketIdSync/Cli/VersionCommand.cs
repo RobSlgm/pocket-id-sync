@@ -41,7 +41,14 @@ sealed class VersionCommand(JsonHelper JsonHelper, IHttpClientFactory HttpClient
                 }
                 else
                 {
-                    AnsiConsole.MarkupLine($"[bold]{AnsiMarkup.Escape(PocketIdUri)}[/] running version [orange1]{version.CurrentVersion}[/], latest version is [blue]{version.LatestVersion}[/].");
+                    if (string.IsNullOrEmpty(version.CurrentVersion))
+                    {
+                        AnsiConsole.MarkupLine($"[bold]{AnsiMarkup.Escape(PocketIdUri)}[/] latest version is [blue]{version.LatestVersion}[/], current version not detected [red]due to missing authorization[/].");
+                    }
+                    else
+                    {
+                        AnsiConsole.MarkupLine($"[bold]{AnsiMarkup.Escape(PocketIdUri)}[/] running version [orange1]{version.CurrentVersion}[/], latest version is [blue]{version.LatestVersion}[/].");
+                    }
                 }
                 break;
         }

@@ -4,11 +4,11 @@ using DotMake.CommandLine;
 namespace PocketIdSync.Cli;
 
 [CliCommand(
-    Description = "Synchronize user groups",
+    Description = "Manage user groups",
     ShortFormAutoGenerate = CliNameAutoGenerate.Options,
     Parent = typeof(RootCommand)
 )]
-sealed class UserGroupsCommand
+sealed class UserGroupCommand
 {
 #pragma warning disable CA1822 // Mark members as static
     public Task<int> RunAsync(CliContext context)

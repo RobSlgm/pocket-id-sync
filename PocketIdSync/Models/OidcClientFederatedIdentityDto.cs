@@ -12,4 +12,6 @@ sealed partial class OidcClientFederatedIdentityDto
     public string? Jwks { get; set; }
 
     public string? Subject { get; set; }
+
+    public bool? ReplayProtection { get; set; }
 }

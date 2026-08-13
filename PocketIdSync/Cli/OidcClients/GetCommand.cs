@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using DotMake.CommandLine;
 using PocketIdSync.Apis;
 using PocketIdSync.ModelSpecs;
+using PocketIdSync.Repositories;
 using PocketIdSync.Utils;
 using Spectre.Console;
 
@@ -30,10 +31,11 @@ sealed class GetCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFacto
     public async Task<int> RunAsync(CliContext context)
     {
         var pocketId = HttpClientFactory.Connect(PocketIdUri, ApiKey);
-        var client = await pocketId.OidcClients.Id(ClientId).GetAsync(context.CancellationToken);
+        var oidcClientRepository = new OidcClientRepository();
+        var client = await oidcClientRepository.GetAsync(pocketId, ClientId, context.CancellationToken);
         if (!client.IsSuccessful)
         {
-            AnsiConsole.MarkupLine($"[red]✗ Pocket ID call {client.Uri} failed: {client.Status}[/]");
+            AnsiConsole.MarkupLine($"[red]✗ Pocket ID call {client.Uri} failed: {client.Status}[/] {client.ErrorMessage}");
             return ExitCode.BadRequest;
         }
         if (client.Data is null)
@@ -43,14 +45,12 @@ sealed class GetCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFacto
         }
         switch (Output)
         {
+            default:
             case "json":
                 JsonHelper.WriteConsole(client.Data);
                 break;
+
             case "yaml":
-                AnsiConsole.WriteLine(Yaml.Write(client.Data.ToKind()));
-                break;
-            default:
-                JsonHelper.WriteConsole(client.Data);
                 AnsiConsole.WriteLine(Yaml.Write(client.Data.ToKind()));
                 break;
         }

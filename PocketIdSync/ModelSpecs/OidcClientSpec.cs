@@ -1,5 +1,6 @@
 ﻿using Generator.Equals;
 using PocketIdSync.Models;
+using PocketIdSync.Utils;
 
 namespace PocketIdSync.ModelSpecs;
 
@@ -8,6 +9,9 @@ sealed partial class OidcClientSpec
 {
     public string? Id { get; set; }
     public string? Name { get; set; }
+
+    [CustomEquality(typeof(StringEmptyEqualityComparer))]
+    public string? Description { get; set; }
 
     [UnorderedEquality(System.StringComparison.OrdinalIgnoreCase)]
     public string[] CallbackURLs { get; set; } = [];
@@ -21,7 +25,13 @@ sealed partial class OidcClientSpec
 
     public bool? PkceEnabled { get; set; }
 
+    public bool? PkceSupported { get; set; }
+
     public bool? RequiresReauthentication { get; set; }
+
+    public bool? RequiresPushedAuthorizationRequests { get; set; }
+
+    public bool? SkipConsent { get; set; }
 
     public OidcClientCredentialsDto? Credentials { get; set; }
 
@@ -37,6 +47,16 @@ sealed partial class OidcClientSpec
 
     [IgnoreEquality]
     public byte[]? LogoDarkContent { get; set; }
+
+    public int? AccessTokenDurationMinutes { get; set; }
+
+    public int? RefreshTokenDurationMinutes { get; set; }
+
+    [UnorderedEquality]
+    public ApiPermission[]? UserDelegatedPermissions { get; set; }
+
+    [UnorderedEquality]
+    public ApiPermission[]? ClientPermissions { get; set; }
 }
 
 sealed class OidcClientKind : KubernetesSpec<OidcClientSpec> { }

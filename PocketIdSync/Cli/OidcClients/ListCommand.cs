@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Threading.Tasks;
 using DotMake.CommandLine;
 using PocketIdSync.Apis;
@@ -7,13 +6,13 @@ using PocketIdSync.Models;
 using PocketIdSync.Utils;
 using Spectre.Console;
 
-namespace PocketIdSync.Cli.ApiKeys;
+namespace PocketIdSync.Cli.OidcClient;
 
 
 [CliCommand(
-   Description = "List Pocket ID API keys",
+   Description = "List Oidc client configurations from Pocket ID",
    Name = "list",
-   Parent = typeof(ApiKeysCommand)
+   Parent = typeof(OidcClientCommand)
 )]
 sealed class ListCommand(JsonHelper JsonHelper, IHttpClientFactory HttpClientFactory) : AuthorizationCommandBase
 {
@@ -23,7 +22,7 @@ sealed class ListCommand(JsonHelper JsonHelper, IHttpClientFactory HttpClientFac
     public async Task<int> RunAsync(CliContext context)
     {
         var pocketId = HttpClientFactory.Connect(PocketIdUri, ApiKey);
-        var clients = await pocketId.ApiKeys.ListAsync(context.CancellationToken);
+        var clients = await pocketId.OidcClients.ListAsync(context.CancellationToken);
         if (!clients.IsSuccessful)
         {
             AnsiConsole.MarkupLine($"[red]✗ Pocket ID call {clients.Uri} failed: {clients.Status}[/]");
@@ -43,15 +42,14 @@ sealed class ListCommand(JsonHelper JsonHelper, IHttpClientFactory HttpClientFac
         return ExitCode.Success;
     }
 
-    private static Table BuildTable(ApiKeyDto[]? data)
+    private static Table BuildTable(OidcClientWithAllowedGroupsCountDto[]? data)
     {
         var table = new Table();
         table.AddColumn("Id");
         table.AddColumn("Name");
-        table.AddColumn("Expires");
         foreach (var client in data ?? [])
         {
-            table.AddRow(client.Id ?? "", client.Name ?? "", client.ExpiresAt?.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture) ?? "");
+            table.AddRow(client.Id ?? "", client.Name ?? "");
         }
         return table;
     }

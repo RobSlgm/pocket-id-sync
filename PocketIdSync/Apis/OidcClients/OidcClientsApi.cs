@@ -20,14 +20,14 @@ sealed class OidcClientsApi(PocketIdClient pocketId)
         return response.Nok<OidcClientWithAllowedGroupsCountDto[]>();
     }
 
-    public async Task<ApiResult<OidcClientWithAllowedGroupsDto>> PostAsync(OidcClientCreateDto data, CancellationToken ct)
+    public async Task<ApiResult<OidcClientCompleteDto>> PostAsync(OidcClientCreateDto data, CancellationToken ct)
     {
         var request = new RestRequest("/oidc/clients").AddBody(data);
-        var response = await pocketId.Api.ExecutePostAsync<OidcClientWithAllowedGroupsDto>(request, ct);
+        var response = await pocketId.Api.ExecutePostAsync<OidcClientCompleteDto>(request, ct);
         if (response.IsSuccessful)
         {
             return await pocketId.OidcClients.Id(data.Id!).GetAsync(ct);
         }
-        return response.Nok<OidcClientWithAllowedGroupsDto>(response.Content);
+        return response.Nok<OidcClientCompleteDto>(response.Content);
     }
 }

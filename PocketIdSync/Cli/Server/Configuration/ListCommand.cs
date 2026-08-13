@@ -12,7 +12,7 @@ namespace PocketIdSync.Cli.Server.Configuration;
 
 
 [CliCommand(
-   Description = "List public application configurations",
+   Description = "List public application configurations from Pocket ID",
    Name = "list",
    Parent = typeof(ServerConfigurationCommand)
 )]

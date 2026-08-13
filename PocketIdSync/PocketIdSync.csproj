@@ -13,8 +13,8 @@
         <UserSecretsId>facf0858-cf43-4d1a-8ed4-d1f8cb60cf19</UserSecretsId>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Generator.Equals" Version="4.0.1" />
-        <PackageReference Include="Meziantou.Analyzer" Version="3.0.123" Condition="'$(Configuration)' == 'Debug'">
+        <PackageReference Include="Generator.Equals" Version="4.0.2" />
+        <PackageReference Include="Meziantou.Analyzer" Version="3.0.147" Condition="'$(Configuration)' == 'Debug'">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
@@ -22,10 +22,10 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="10.0.9" />
-        <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="10.0.9" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.9" />
-        <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="10.7.0" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="10.0.11" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="10.0.11" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.11" />
+        <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="10.9.0" />
         <PackageReference Include="RestSharp" Version="114.0.0" />
         <PackageReference Include="DotMake.CommandLine" Version="3.5.0" />
         <PackageReference Include="Riok.Mapperly" Version="4.3.1" />

@@ -39,7 +39,10 @@ sealed class OidcClientFilestore : IConfigStoreOidcClient
             try
             {
                 if (specFile.FullName.Contains(".Secret.", StringComparison.OrdinalIgnoreCase)) continue;
-                var client = new OidcClientSyncItem { Filename = specFile.FullName };
+                var client = new OidcClientSyncItem
+                {
+                    Filename = specFile.FullName,
+                };
                 var readClient = await ReadFileAsync(client, ct);
                 if (readClient is null || client.HasError == true)
                 {
@@ -81,7 +84,10 @@ sealed class OidcClientFilestore : IConfigStoreOidcClient
             {
                 return ExitCode.BadRequest;
             }
-            var client = new OidcClientSyncItem { Filename = specFile.FullName };
+            var client = new OidcClientSyncItem
+            {
+                Filename = specFile.FullName,
+            };
             await ReadFileAsync(client, ct);
             clients.Add(client);
             return ExitCode.Success;

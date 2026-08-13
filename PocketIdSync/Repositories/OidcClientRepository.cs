@@ -26,7 +26,7 @@ sealed class OidcClientRepository
         var clientAccess = await pocketId.OidcClients.Id(clientId).GetClientAccess(ct);
         if (!clientAccess.IsSuccessful)
         {
-            return client; // TODO: wrong return, must be error ...
+            return clientAccess.NokAs<OidcClientCompleteDto, ClientApiAccessDto>();
         }
         if (clientAccess.Data is not null && (clientAccess.Data.ClientPermissionIds.Length != 0 || clientAccess.Data.UserDelegatedPermissionIds.Length != 0))
         {
@@ -35,7 +35,7 @@ sealed class OidcClientRepository
                 var appApiResponse = await AppApiResolver.Initialize(pocketId, ct);
                 if (!appApiResponse.IsSuccessful)
                 {
-                    return client; // TODO: wrong return, must be error
+                    return appApiResponse.NokAs<OidcClientCompleteDto, ApiResponseDto[]>();
                 }
                 HasAppApiResolverData = true;
             }
@@ -56,7 +56,7 @@ sealed class OidcClientRepository
                 var appApiResponse = await AppApiResolver.Initialize(pocketId, ct);
                 if (!appApiResponse.IsSuccessful)
                 {
-                    return null; // TODO: wrong return, must be error
+                    return appApiResponse.NokAs<OidcClientCompleteDto, ApiResponseDto[]>();
                 }
                 HasAppApiResolverData = true;
             }
@@ -70,7 +70,7 @@ sealed class OidcClientRepository
                 var userGroupResponse = await UserGroupResolver.Initialize(pocketId, ct);
                 if (!userGroupResponse.IsSuccessful)
                 {
-                    return null; // TODO: wrong return, must be error
+                    return userGroupResponse.NokAs<OidcClientCompleteDto, UserGroupMinimalDto[]>();
                 }
                 HasUserGroupResolverData = true;
             }
@@ -88,13 +88,13 @@ sealed class OidcClientRepository
         var groups = await pocketId.OidcClients.Id(baseResponse.Data.Id!).PutAllowedUserGroupsAsync(oidcClient.AllowedUserGroups, ct);
         if (!groups.IsSuccessful)
         {
-            // TODO: error reporting?!
+            return groups;
         }
         // TODO: Check if api permissions in local and remote are changed
         var permissions = await pocketId.OidcClients.Id(baseResponse.Data.Id!).UpdateClientAccess(oidcClient.ToClientApiAccessUpdateRequest(), ct);
         if (!permissions.IsSuccessful)
         {
-            // TODO: error reporting?!
+            return permissions.NokAs<OidcClientCompleteDto, ClientApiAccessDto>();
         }
         return baseResponse;
     }

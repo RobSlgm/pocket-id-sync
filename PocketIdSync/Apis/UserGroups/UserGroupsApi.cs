@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using PocketIdSync.Models;
 using RestSharp;
 
-namespace PocketIdSync.Apis.UserGroup;
+namespace PocketIdSync.Apis.UserGroups;
 
 sealed class UserGroupsApi(PocketIdClient PocketId)
 {

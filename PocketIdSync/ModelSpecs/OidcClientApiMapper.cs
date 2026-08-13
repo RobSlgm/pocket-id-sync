@@ -6,15 +6,15 @@ using Riok.Mapperly.Abstractions;
 namespace PocketIdSync.ModelSpecs;
 
 [Mapper]
-static partial class AppApiMapper
+static partial class OidcClientApiMapper
 {
     [MapperIgnoreSource(nameof(ApiResponseDto.CreatedAt))]
     [MapperIgnoreSource(nameof(ApiResponseDto.Id))]
-    private static partial AppApiSpec Map(ApiResponseDto data);
+    private static partial OidcClientApiSpec Map(ApiResponseDto data);
 
     [MapperIgnoreTarget(nameof(ApiResponseDto.CreatedAt))]
     [MapperIgnoreTarget(nameof(ApiResponseDto.Id))]
-    private static partial ApiResponseDto Map(AppApiSpec data);
+    private static partial ApiResponseDto Map(OidcClientApiSpec data);
 
     [MapperIgnoreSource(nameof(ApiResponseDto.CreatedAt))]
     [MapperIgnoreSource(nameof(ApiResponseDto.Id))]
@@ -50,14 +50,14 @@ static partial class AppApiMapper
         return [.. data.Select(p => Map(p))];
     }
 
-    public static AppApiKind ToKind(this ApiResponseDto data, string? ns = null) => ToKind(Map(data), ns);
+    public static OidcClientApiKind ToKind(this ApiResponseDto data, string? ns = null) => ToKind(Map(data), ns);
 
-    public static AppApiKind ToKind(AppApiSpec spec, string? ns = null)
+    public static OidcClientApiKind ToKind(OidcClientApiSpec spec, string? ns = null)
     {
-        var kind = new AppApiKind
+        var kind = new OidcClientApiKind
         {
             ApiVersion = "pocketid.closure.ch/v1",
-            Kind = "ApplicationApi",
+            Kind = "OidcClientApi",
             Metadata = new KubernetesMetadata
             {
                 Name = System.Text.Json.JsonNamingPolicy.CamelCase.ConvertName(StringNameConverter.ToSafeName(spec.Resource)),
@@ -68,7 +68,7 @@ static partial class AppApiMapper
         return kind;
     }
 
-    public static ApiResponseDto FromKind(this AppApiSpec spec, ApiResponseDto? remote)
+    public static ApiResponseDto FromKind(this OidcClientApiSpec spec, ApiResponseDto? remote)
     {
         if (remote is not null)
         {

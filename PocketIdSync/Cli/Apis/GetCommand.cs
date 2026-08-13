@@ -6,15 +6,15 @@ using PocketIdSync.ModelSpecs;
 using PocketIdSync.Utils;
 using Spectre.Console;
 
-namespace PocketIdSync.Cli.AppApis;
+namespace PocketIdSync.Cli.Apis;
 
 
 [CliCommand(
-    Description = "Get application API definition from Pocket ID",
+    Description = "Get OIDC client API definition from Pocket ID",
     Name = "get",
-    Parent = typeof(AppApisCommand)
+    Parent = typeof(ApiCommand)
 )]
-sealed class GetCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFactory HttpClientFactory) : AppApiIdentityCommandBase
+sealed class GetCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFactory HttpClientFactory) : ApiIdentityCommandBase
 {
     [CliOption(Description = "Namespace, used in YAML generation", Alias = "ns", Hidden = true)]
     public string Namespace { get; set; } = "default";
@@ -25,13 +25,13 @@ sealed class GetCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFacto
     public async Task<int> RunAsync(CliContext context)
     {
         var pocketId = HttpClientFactory.Connect(PocketIdUri, ApiKey);
-        var findAppApi = await FindAppApi(pocketId, ApiId, Resource, context.CancellationToken);
-        if (findAppApi.ExitCode != ExitCode.Success || string.IsNullOrEmpty(findAppApi.Id))
+        var findApi = await FindApiAsync(pocketId, ApiId, Resource, context.CancellationToken);
+        if (findApi.ExitCode != ExitCode.Success || string.IsNullOrEmpty(findApi.Id))
         {
-            return findAppApi.ExitCode;
+            return findApi.ExitCode;
         }
-        ApiId = findAppApi.Id;
-        var api = await pocketId.AppApis.Id(ApiId).GetAsync(context.CancellationToken);
+        ApiId = findApi.Id;
+        var api = await pocketId.Apis.Id(ApiId).GetAsync(context.CancellationToken);
         if (!api.IsSuccessful)
         {
             AnsiConsole.MarkupLine($"[red]✗ Pocket ID call {api.Uri} failed: {api.Status}[/]");
@@ -39,7 +39,7 @@ sealed class GetCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFacto
         }
         if (api.Data is null)
         {
-            AnsiConsole.MarkupLine($"[red]✗ Pocket ID application API definition [bold]{ApiId}[/] not found[/]");
+            AnsiConsole.MarkupLine($"[red]✗ Pocket ID OIDC client API definition [bold]{ApiId}[/] not found[/]");
             return ExitCode.BadRequest;
         }
         switch (Output)

@@ -8,8 +8,8 @@ namespace PocketIdSync.Repositories;
 
 sealed class OidcClientRepository
 {
-    private readonly AppApiResolver AppApiResolver = new();
-    private bool HasAppApiResolverData = false;
+    private readonly ApiResolver ApiResolver = new();
+    private bool HasApiResolverData = false;
     private readonly UserGroupResolver UserGroupResolver = new();
     private bool HasUserGroupResolverData = false;
 
@@ -28,13 +28,13 @@ sealed class OidcClientRepository
         }
         if (clientAccess.Data is not null && (clientAccess.Data.ClientPermissionIds.Length != 0 || clientAccess.Data.UserDelegatedPermissionIds.Length != 0))
         {
-            var appApiResponse = await EnsureAppApiDataAsync(pocketId, ct);
-            if (!appApiResponse.IsSuccessful)
+            var apiResponse = await EnsureApiDataAsync(pocketId, ct);
+            if (!apiResponse.IsSuccessful)
             {
-                return appApiResponse.NokAs<OidcClientCompleteDto, ApiResponseDto[]>();
+                return apiResponse.NokAs<OidcClientCompleteDto, ApiResponseDto[]>();
             }
-            client.Data.ClientPermissions = AppApiResolver.ToPermissions(clientAccess.Data.ClientPermissionIds);
-            client.Data.UserDelegatedPermissions = AppApiResolver.ToPermissions(clientAccess.Data.UserDelegatedPermissionIds);
+            client.Data.ClientPermissions = ApiResolver.ToPermissions(clientAccess.Data.ClientPermissionIds);
+            client.Data.UserDelegatedPermissions = ApiResolver.ToPermissions(clientAccess.Data.UserDelegatedPermissionIds);
         }
 
         return client;
@@ -45,20 +45,20 @@ sealed class OidcClientRepository
         var oidcClient = clientData.FromKind();
         if (clientData.ClientPermissions is not null || clientData.UserDelegatedPermissions is not null)
         {
-            var appApiResponse = await EnsureAppApiDataAsync(pocketId, ct);
-            if (!appApiResponse.IsSuccessful)
+            var apiResponse = await EnsureApiDataAsync(pocketId, ct);
+            if (!apiResponse.IsSuccessful)
             {
                 return (ExitCode.FatalError, null, "Failed to load application api data");
             }
 
-            var (cpCode, cpPermissions, cpErrorMessage) = AppApiResolver.TryConvert(clientData.ClientPermissions);
+            var (cpCode, cpPermissions, cpErrorMessage) = ApiResolver.TryConvert(clientData.ClientPermissions);
             if (cpCode != ExitCode.Success)
             {
                 return (ExitCode.BadRequest, null, $"Application Api client permission not found: {cpErrorMessage}");
             }
             oidcClient.ClientPermissions = cpPermissions;
 
-            var (udCode, udPermissions, udErrorMessage) = AppApiResolver.TryConvert(clientData.UserDelegatedPermissions);
+            var (udCode, udPermissions, udErrorMessage) = ApiResolver.TryConvert(clientData.UserDelegatedPermissions);
             if (udCode != ExitCode.Success)
             {
                 return (ExitCode.BadRequest, null, $"Application Api user delegated permission not found: {udErrorMessage}");
@@ -102,18 +102,18 @@ sealed class OidcClientRepository
         return baseResponse;
     }
 
-    private async Task<ApiResult<ApiResponseDto[]>> EnsureAppApiDataAsync(PocketIdClient pocketId, CancellationToken ct)
+    private async Task<ApiResult<ApiResponseDto[]>> EnsureApiDataAsync(PocketIdClient pocketId, CancellationToken ct)
     {
-        if (HasAppApiResolverData)
+        if (HasApiResolverData)
         {
             return new ApiResult<ApiResponseDto[]>(IsSuccessful: true);
         }
-        var appApiResponse = await AppApiResolver.Initialize(pocketId, ct);
-        if (appApiResponse.IsSuccessful)
+        var apiResponse = await ApiResolver.Initialize(pocketId, ct);
+        if (apiResponse.IsSuccessful)
         {
-            HasAppApiResolverData = true;
+            HasApiResolverData = true;
         }
-        return appApiResponse;
+        return apiResponse;
     }
 
     private async Task<ApiResult<UserGroupMinimalDto[]>> EnsureUserGroupDataAsync(PocketIdClient pocketId, CancellationToken ct)

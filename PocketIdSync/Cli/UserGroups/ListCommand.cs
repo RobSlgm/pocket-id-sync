@@ -12,7 +12,7 @@ namespace PocketIdSync.Cli.UserGroups;
 [CliCommand(
    Description = "List user groups from Pocket ID",
    Name = "list",
-   Parent = typeof(UserGroupsCommand)
+   Parent = typeof(UserGroupCommand)
 )]
 sealed class ListCommand(JsonHelper JsonHelper, IHttpClientFactory HttpClientFactory) : AuthorizationCommandBase
 {

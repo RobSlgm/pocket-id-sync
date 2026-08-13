@@ -3,11 +3,11 @@ using System.Threading.Tasks;
 using PocketIdSync.Models;
 using RestSharp;
 
-namespace PocketIdSync.Apis.AppApis;
+namespace PocketIdSync.Apis.Apis;
 
-sealed class AppApisApi(PocketIdClient pocketId)
+sealed class ApisApi(PocketIdClient pocketId)
 {
-    public AppApisIdApi Id(string id) => new(pocketId, id);
+    public ApisIdApi Id(string id) => new(pocketId, id);
 
     public async Task<ApiResult<ApiResponseDto[]>> ListAsync(string? searchQuery = null, CancellationToken ct = default)
     {
@@ -30,7 +30,7 @@ sealed class AppApisApi(PocketIdClient pocketId)
         var response = await pocketId.Api.ExecutePostAsync<ApiResponseDto>(request, ct);
         if (response.IsSuccessful && response.Data is not null)
         {
-            return await pocketId.AppApis.Id(response.Data.Id!).GetAsync(ct);
+            return await pocketId.Apis.Id(response.Data.Id!).GetAsync(ct);
         }
         return response.Nok<ApiResponseDto>(response.Content);
     }

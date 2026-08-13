@@ -12,7 +12,7 @@ namespace PocketIdSync.Cli.UserGroups;
 [CliCommand(
     Description = "Get user group configuration from Pocket ID",
     Name = "get",
-    Parent = typeof(UserGroupsCommand)
+    Parent = typeof(UserGroupCommand)
 )]
 sealed class GetCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFactory HttpClientFactory) : UserGroupsIdentityCommandBase
 {

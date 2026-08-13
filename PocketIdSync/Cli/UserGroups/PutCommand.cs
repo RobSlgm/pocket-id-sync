@@ -13,7 +13,7 @@ namespace PocketIdSync.Cli.UserGroups;
 [CliCommand(
     Description = "Put client configuration (upload)",
     Name = "put",
-    Parent = typeof(UserGroupsCommand)
+    Parent = typeof(UserGroupCommand)
 )]
 sealed class PutCommand(JsonHelper JsonHelper, IHttpClientFactory HttpClientFactory) : AuthorizationCommandBase
 {

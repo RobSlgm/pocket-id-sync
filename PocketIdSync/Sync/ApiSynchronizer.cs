@@ -10,17 +10,17 @@ using PocketIdSync.Utils;
 
 namespace PocketIdSync.Sync;
 
-sealed class AppApiSynchronizer : ISynchronizer<AppApiSyncItem>
+sealed class ApiSynchronizer : ISynchronizer<ApiSyncItem>
 {
-    public List<AppApiSyncItem> Items { get; private set; } = [];
-    private readonly IConfigStoreAppApi Configuration;
+    public List<ApiSyncItem> Items { get; private set; } = [];
+    private readonly IConfigStoreApi Configuration;
 
-    public AppApiSynchronizer(IConfigStoreAppApi configuration)
+    public ApiSynchronizer(IConfigStoreApi configuration)
     {
         Configuration = configuration;
     }
 
-    public async Task<(int ExitCode, AppApiSyncItem? Client, string? ErrorMessage)> CombineAsync(PocketIdClient pocketId, SynchronizationTarget direction, SyncItemSelector? selector, CancellationToken ct)
+    public async Task<(int ExitCode, ApiSyncItem? Client, string? ErrorMessage)> CombineAsync(PocketIdClient pocketId, SynchronizationTarget direction, SyncItemSelector? selector, CancellationToken ct)
     {
         return direction == SynchronizationTarget.PocketID ?
           await MergeFromPocketIdAsync(pocketId, ct) :
@@ -28,9 +28,9 @@ sealed class AppApiSynchronizer : ISynchronizer<AppApiSyncItem>
     }
 
 
-    private async Task<(int ExitCode, AppApiSyncItem? Client, string? ErrorMessage)> MergeFromPocketIdAsync(PocketIdClient pocketId, CancellationToken ct)
+    private async Task<(int ExitCode, ApiSyncItem? Client, string? ErrorMessage)> MergeFromPocketIdAsync(PocketIdClient pocketId, CancellationToken ct)
     {
-        var allShortResponse = await pocketId.AppApis.ListAsync(ct: ct);
+        var allShortResponse = await pocketId.Apis.ListAsync(ct: ct);
         if (!allShortResponse.IsSuccessful)
         {
             return (ExitCode.FatalError, default, default);
@@ -50,31 +50,31 @@ sealed class AppApiSynchronizer : ISynchronizer<AppApiSyncItem>
         return (ExitCode.Success, default, default);
     }
 
-    private async Task<(int ExitCode, AppApiSyncItem? Client, string? ErrorMessage)> MergeFromConfigurationAsync(PocketIdClient pocketId, SyncItemSelector? selector, CancellationToken ct)
+    private async Task<(int ExitCode, ApiSyncItem? Client, string? ErrorMessage)> MergeFromConfigurationAsync(PocketIdClient pocketId, SyncItemSelector? selector, CancellationToken ct)
     {
-        var allShortResponse = await pocketId.AppApis.ListAsync(ct: ct);
+        var allShortResponse = await pocketId.Apis.ListAsync(ct: ct);
         if (!allShortResponse.IsSuccessful)
         {
             return (ExitCode.FatalError, default, default);
         }
-        foreach (var appApi in allShortResponse.Data ?? [])
+        foreach (var api in allShortResponse.Data ?? [])
         {
-            if (string.IsNullOrEmpty(appApi.Id)) continue;
-            var sync = new AppApiSyncItem
+            if (string.IsNullOrEmpty(api.Id)) continue;
+            var sync = new ApiSyncItem
             {
-                Id = StringNameConverter.ToSafeName(appApi.Resource),
-                Name = appApi.Name,
+                Id = StringNameConverter.ToSafeName(api.Resource),
+                Name = api.Name,
             };
             if (!sync.IsMatch(selector))
             {
                 continue;
             }
-            var appApiResponse = await pocketId.AppApis.Id(appApi.Id).GetAsync(ct);
-            if (!appApiResponse.IsSuccessful)
+            var apiResponse = await pocketId.Apis.Id(api.Id).GetAsync(ct);
+            if (!apiResponse.IsSuccessful)
             {
-                return (ExitCode.FatalError, sync, $"Merge failed {appApiResponse.Status}");
+                return (ExitCode.FatalError, sync, $"Merge failed {apiResponse.Status}");
             }
-            sync.Remote = appApiResponse.Data;
+            sync.Remote = apiResponse.Data;
             Items.Add(sync);
         }
         return (ExitCode.Success, default, default);
@@ -90,15 +90,15 @@ sealed class AppApiSynchronizer : ISynchronizer<AppApiSyncItem>
         };
     }
 
-    private static async Task<ApiResult<ApiResponseDto>> UpdateAsync(PocketIdClient pocketId, string? id, ApiResponseDto appApi, CancellationToken ct)
+    private static async Task<ApiResult<ApiResponseDto>> UpdateAsync(PocketIdClient pocketId, string? id, ApiResponseDto api, CancellationToken ct)
     {
-        var header = !string.IsNullOrEmpty(id) ? await pocketId.AppApis.Id(id).PutAsync(appApi.ToUpdateRequest(), ct) : await pocketId.AppApis.PostAsync(appApi.ToCreateRequest(), ct);
+        var header = !string.IsNullOrEmpty(id) ? await pocketId.Apis.Id(id).PutAsync(api.ToUpdateRequest(), ct) : await pocketId.Apis.PostAsync(api.ToCreateRequest(), ct);
         if (!header.IsSuccessful || header.Data is null)
         {
             return header;
         }
-        var appApiId = header.Data.Id!;
-        var permissions = await pocketId.AppApis.Id(appApiId).UpdatePermissions(appApi.Permissions.ToUpdateRequest(), ct);
+        var apiId = header.Data.Id!;
+        var permissions = await pocketId.Apis.Id(apiId).UpdatePermissions(api.Permissions.ToUpdateRequest(), ct);
         // if (!permissions.IsSuccessful)
         // {
         //     return permissions;
@@ -112,10 +112,10 @@ sealed class AppApiSynchronizer : ISynchronizer<AppApiSyncItem>
         foreach (var sync in Items.Where(c => (c.IsRemoteEqualLocal == false) && c.HasError == false))
         {
             if (sync.Local?.Spec is null) continue;
-            var appApi = sync.Local.Spec.FromKind(sync.Remote);
+            var api = sync.Local.Spec.FromKind(sync.Remote);
             if (sync.IsRemoteEqualLocal == false)
             {
-                var changed = await UpdateAsync(pocketId, sync.Remote?.Id, appApi, ct);
+                var changed = await UpdateAsync(pocketId, sync.Remote?.Id, api, ct);
                 if (!changed.IsSuccessful)
                 {
                     sync.SetError(changed.ErrorMessage);

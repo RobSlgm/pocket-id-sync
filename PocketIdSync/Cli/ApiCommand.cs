@@ -4,11 +4,11 @@ using DotMake.CommandLine;
 namespace PocketIdSync.Cli;
 
 [CliCommand(
-    Description = "Synchronize application API definitions",
+    Description = "Manage OIDC client API definitions",
     ShortFormAutoGenerate = CliNameAutoGenerate.Options,
     Parent = typeof(RootCommand)
 )]
-sealed class AppApisCommand
+sealed class ApiCommand
 {
 #pragma warning disable CA1822 // Mark members as static
     public Task<int> RunAsync(CliContext context)

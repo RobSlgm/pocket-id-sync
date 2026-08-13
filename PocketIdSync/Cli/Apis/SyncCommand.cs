@@ -11,14 +11,14 @@ using PocketIdSync.Sync;
 using PocketIdSync.Utils;
 using Spectre.Console;
 
-namespace PocketIdSync.Cli.AppApis;
+namespace PocketIdSync.Cli.Apis;
 
 
 [CliCommand(
-    Description = "Sync application API configuration",
+    Description = "Sync OIDC client API configuration",
     Name = "sync",
     ShortFormAutoGenerate = CliNameAutoGenerate.Options,
-    Parent = typeof(AppApisCommand)
+    Parent = typeof(ApiCommand)
 )]
 sealed class SyncCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFactory HttpClientFactory) : SyncCommandBase
 {
@@ -26,13 +26,13 @@ sealed class SyncCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFact
     {
         var exitCode = await AnsiConsole.Status()
             .Spinner(Spinner.Known.BluePulse)
-            .StartAsync("Sync application API configuration ...", async ctx => await RunAsync(context, ctx));
+            .StartAsync("Sync OIDC client API configuration ...", async ctx => await RunAsync(context, ctx));
         return exitCode;
     }
 
-    private ISynchronizer<AppApiSyncItem>? Initialize()
+    private ISynchronizer<ApiSyncItem>? Initialize()
     {
-        var localStore = new AppApiFilestore(StoreRoot.FullName, Yaml)
+        var localStore = new ApiFilestore(StoreRoot.FullName, Yaml)
         {
         };
         if (!localStore.Exists)
@@ -40,7 +40,7 @@ sealed class SyncCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFact
             AnsiConsole.MarkupLine($"[bold red]✗ No local configuration found at {StoreRoot.FullName}[/]");
             return null;
         }
-        var sync = new AppApiSynchronizer(localStore)
+        var sync = new ApiSynchronizer(localStore)
         {
         };
         return sync;
@@ -63,7 +63,7 @@ sealed class SyncCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFact
             {
                 foreach (var api in sync.Items)
                 {
-                    AnsiConsole.MarkupLine($"[green]✓ Local specification for [bold]application API {api.Namespace}/{api.Name}[/] read from {Path.GetRelativePath(StoreRoot.FullName, api.Filename!)}[/]");
+                    AnsiConsole.MarkupLine($"[green]✓ Local specification for [bold]OIDC client API {api.Namespace}/{api.Name}[/] read from {Path.GetRelativePath(StoreRoot.FullName, api.Filename!)}[/]");
                     AnsiConsole.WriteLine(Yaml.Write(api.Local));
                 }
             }
@@ -89,28 +89,28 @@ sealed class SyncCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFact
             return ExitCode.FatalError;
         }
 
-        var appApiResult = await sync.CombineAsync(pocketId, SynchronizationTarget, selector, context.CancellationToken);
-        if (appApiResult.ExitCode != ExitCode.Success)
+        var apiResult = await sync.CombineAsync(pocketId, SynchronizationTarget, selector, context.CancellationToken);
+        if (apiResult.ExitCode != ExitCode.Success)
         {
-            switch (appApiResult.ExitCode)
+            switch (apiResult.ExitCode)
             {
                 case ExitCode.FatalError:
-                    AnsiConsole.MarkupLine($"[red]✗ Pocket ID application API [bold]{appApiResult.Client?.Id}[/] failed to read: {appApiResult.ErrorMessage}[/]");
+                    AnsiConsole.MarkupLine($"[red]✗ Pocket ID OIDC client API [bold]{apiResult.Client?.Id}[/] failed to read: {apiResult.ErrorMessage}[/]");
                     break;
 
                 case ExitCode.BadRequest:
-                    AnsiConsole.MarkupLine($"[red]✗ Pocket ID application API [bold]{appApiResult.Client?.Id}[/] is invalid: {appApiResult.ErrorMessage}[/]");
+                    AnsiConsole.MarkupLine($"[red]✗ Pocket ID OIDC client API [bold]{apiResult.Client?.Id}[/] is invalid: {apiResult.ErrorMessage}[/]");
                     break;
 
                 default:
-                    AnsiConsole.MarkupLine($"[red]✗ Pocket ID application API [bold]{appApiResult.Client?.Id}[/] failed: {appApiResult.ErrorMessage}[/]");
+                    AnsiConsole.MarkupLine($"[red]✗ Pocket ID OIDC client API [bold]{apiResult.Client?.Id}[/] failed: {apiResult.ErrorMessage}[/]");
                     break;
             }
-            return appApiResult.ExitCode;
+            return apiResult.ExitCode;
         }
         if (Verbose)
         {
-            AnsiConsole.MarkupLine($"Pocket ID {sync.Items.Count} application API(s) loaded");
+            AnsiConsole.MarkupLine($"Pocket ID {sync.Items.Count} OIDC client API(s) loaded");
         }
 
         if (SynchronizationTarget == SynchronizationTarget.Configuration)
@@ -124,7 +124,7 @@ sealed class SyncCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFact
             }
         }
 
-        ShowApplicationApis(sync.Items);
+        ShowApis(sync.Items);
 
         if (DryRun)
         {
@@ -145,7 +145,7 @@ sealed class SyncCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFact
         return syncResult;
     }
 
-    private void ShowSyncResults(List<AppApiSyncItem> apis)
+    private void ShowSyncResults(List<ApiSyncItem> apis)
     {
         foreach (var api in apis.Where(c => c.IsRemoteEqualLocal == false || c.IsLocalDirty == true).OrderBy(c => c.Id, StringComparer.OrdinalIgnoreCase))
         {
@@ -153,7 +153,7 @@ sealed class SyncCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFact
             {
                 if (api.RemoteMerged is not null && api.HasError == false)
                 {
-                    AnsiConsole.MarkupLine($"[green1]✓ Pocket ID application API [bold]{api.Name}[/] id({api.Id!}) synchronized[/]");
+                    AnsiConsole.MarkupLine($"[green1]✓ Pocket ID OIDC client API [bold]{api.Name}[/] id({api.Id!}) synchronized[/]");
                     if (Verbose)
                     {
                         JsonHelper.WriteConsole(api.RemoteMerged);
@@ -161,7 +161,7 @@ sealed class SyncCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFact
                 }
                 else
                 {
-                    AnsiConsole.MarkupLine($"✗[red] Pocket ID application API [bold]{api.Name}[/] id({api.Id!}) failed to {(api.Remote is not null ? "update" : "create")}: {Markup.Escape(api.Message ?? "")}[/]");
+                    AnsiConsole.MarkupLine($"✗[red] Pocket ID OIDC client API [bold]{api.Name}[/] id({api.Id!}) failed to {(api.Remote is not null ? "update" : "create")}: {Markup.Escape(api.Message ?? "")}[/]");
                     if (Verbose)
                     {
                         AnsiConsole.Markup($"# [bold]{Path.GetRelativePath(StoreRoot.FullName, api.Filename!)}[/]\n{Markup.Escape(Yaml.Write(api.Local))}\n");
@@ -172,7 +172,7 @@ sealed class SyncCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFact
             {
                 if (api.LocalMerged is not null && api.HasError == false)
                 {
-                    AnsiConsole.MarkupLine($"[green1]✓ Pocket ID application API [bold]{api.Name}[/] id({api.Id!}) {(api.Local is not null ? "updated" : "created")} specification at {Path.GetRelativePath(StoreRoot.FullName, api.Filename!)}[/]");
+                    AnsiConsole.MarkupLine($"[green1]✓ Pocket ID OIDC client API [bold]{api.Name}[/] id({api.Id!}) {(api.Local is not null ? "updated" : "created")} specification at {Path.GetRelativePath(StoreRoot.FullName, api.Filename!)}[/]");
                     if (Verbose)
                     {
                         JsonHelper.WriteConsole(api.RemoteMerged);
@@ -180,7 +180,7 @@ sealed class SyncCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFact
                 }
                 else
                 {
-                    AnsiConsole.MarkupLine($"[red]✗ Pocket ID application API [bold]{api.Name}[/] id({api.Id!}) failed to {(api.Local is not null ? "update" : "create")} specification at {Path.GetRelativePath(StoreRoot.FullName, api.Filename!)}: {Markup.Escape(api.Message ?? "")}[/]");
+                    AnsiConsole.MarkupLine($"[red]✗ Pocket ID OIDC client API [bold]{api.Name}[/] id({api.Id!}) failed to {(api.Local is not null ? "update" : "create")} specification at {Path.GetRelativePath(StoreRoot.FullName, api.Filename!)}: {Markup.Escape(api.Message ?? "")}[/]");
                     if (Verbose)
                     {
                         AnsiConsole.Markup($"# [bold]{Path.GetRelativePath(StoreRoot.FullName, api.Filename!)}[/]\n{Markup.Escape(Yaml.Write(api.Local))}\n");
@@ -190,18 +190,18 @@ sealed class SyncCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFact
         }
     }
 
-    private void ShowApplicationApis(List<AppApiSyncItem> apis)
+    private void ShowApis(List<ApiSyncItem> apis)
     {
         foreach (var api in apis.OrderBy(c => c.Id, StringComparer.OrdinalIgnoreCase))
         {
             if (api.HasError == true)
             {
-                AnsiConsole.MarkupLine($"[red]✗ Pocket ID application API [bold]{api.Name}[/] id({api.Id!}) has errors[/]");
+                AnsiConsole.MarkupLine($"[red]✗ Pocket ID OIDC client API [bold]{api.Name}[/] id({api.Id!}) has errors[/]");
 
             }
             else if (api.Remote is null)
             {
-                AnsiConsole.MarkupLine($"[Orange1]✗ Pocket ID application API [bold]{api.Name}[/] id({api.Id!}) doesn't exist[/]");
+                AnsiConsole.MarkupLine($"[Orange1]✗ Pocket ID OIDC client API [bold]{api.Name}[/] id({api.Id!}) doesn't exist[/]");
             }
             else
             {
@@ -209,21 +209,21 @@ sealed class SyncCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFact
                 {
                     if (api.IsLocalDirty)
                     {
-                        AnsiConsole.MarkupLine($"[Orange3]✓ Pocket ID application API [bold]{api.Name}[/] id({api.Id!}) is unchanged (sync forced)[/]");
+                        AnsiConsole.MarkupLine($"[Orange3]✓ Pocket ID OIDC client API [bold]{api.Name}[/] id({api.Id!}) is unchanged (sync forced)[/]");
                     }
                     else
                     {
-                        AnsiConsole.MarkupLine($"[green]✓ Pocket ID application API [bold]{api.Name}[/] id({api.Id!}) is unchanged[/]");
+                        AnsiConsole.MarkupLine($"[green]✓ Pocket ID OIDC client API [bold]{api.Name}[/] id({api.Id!}) is unchanged[/]");
                     }
                 }
                 else
                 {
                     if (api.Local is not null)
                     {
-                        AnsiConsole.MarkupLine($"[Orange3]✗ Pocket ID application API [bold]{api.Name}[/] id({api.Id!}) is changed[/]");
+                        AnsiConsole.MarkupLine($"[Orange3]✗ Pocket ID OIDC client API [bold]{api.Name}[/] id({api.Id!}) is changed[/]");
                         if (Verbose)
                         {
-                            foreach (var diff in AppApiSpec.EqualityComparer.Default.Inequalities(api.Local.Spec, api.Remote.ToKind(Namespace).Spec))
+                            foreach (var diff in OidcClientApiSpec.EqualityComparer.Default.Inequalities(api.Local.Spec, api.Remote.ToKind(Namespace).Spec))
                             {
                                 AnsiConsole.MarkupLine($" - Difference: [Orange3]{AnsiMarkup.Escape(diff.ToString())}[/]");
                             }
@@ -231,7 +231,7 @@ sealed class SyncCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFact
                     }
                     else
                     {
-                        AnsiConsole.MarkupLine($"[Orange1]✗ Pocket ID application API [bold]{api.Name}[/] id({api.Id!}) doesn't exist[/]");
+                        AnsiConsole.MarkupLine($"[Orange1]✗ Pocket ID OIDC client API [bold]{api.Name}[/] id({api.Id!}) doesn't exist[/]");
                     }
                     // AnsiConsole.MarkupLine($"L{client.Local is not null} - {client.LocalMerged is not null}, R{client.Remote is not null} - {client.RemoteMerged is not null}, {client.IsLocalDirty}:{client.IsRemoteEqualLocal}");
                     if (Verbose)

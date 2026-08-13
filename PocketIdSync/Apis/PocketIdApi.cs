@@ -2,11 +2,11 @@
 using System.Net.Http;
 using System.Text.Json;
 using PocketIdSync.Apis.ApiKeys;
-using PocketIdSync.Apis.AppApis;
+using PocketIdSync.Apis.Apis;
 using PocketIdSync.Apis.ApplicationConfiguration;
 using PocketIdSync.Apis.ApplicationImages;
 using PocketIdSync.Apis.OidcClients;
-using PocketIdSync.Apis.UserGroup;
+using PocketIdSync.Apis.UserGroups;
 using PocketIdSync.Models;
 using RestSharp;
 using RestSharp.Serializers.Json;
@@ -29,7 +29,7 @@ static class PocketIdApi
     {
         public VersionApi Version { get { return new VersionApi(client); } }
         public OidcClientsApi OidcClients { get { return new OidcClientsApi(client); } }
-        public AppApisApi AppApis { get { return new AppApisApi(client); } }
+        public ApisApi Apis { get { return new ApisApi(client); } }
         public UserGroupsApi UserGroups { get { return new UserGroupsApi(client); } }
         public ApplicationImagesApi ApplicationImages { get { return new ApplicationImagesApi(client); } }
         public ApplicationConfigurationApi ApplicationConfiguration { get { return new ApplicationConfigurationApi(client); } }

@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PocketIdSync.Apis;
 using PocketIdSync.Apis.OidcClients;
-using PocketIdSync.Apis.UserGroup;
+using PocketIdSync.Apis.UserGroups;
 using PocketIdSync.Cli;
 using PocketIdSync.Utils;
 using Polly;

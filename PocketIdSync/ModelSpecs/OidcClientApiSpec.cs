@@ -4,7 +4,7 @@ using PocketIdSync.Models;
 namespace PocketIdSync.ModelSpecs;
 
 [Equatable]
-sealed partial class AppApiSpec
+sealed partial class OidcClientApiSpec
 {
     // public string? Id { get; set; }
     public string? Resource { get; set; }
@@ -17,11 +17,11 @@ sealed partial class AppApiSpec
 
 
 [Equatable]
-sealed partial class AppApiPermission
+sealed partial class ApiPermission
 {
     public required string Resource { get; set; }
     public required string Key { get; set; }
 }
 
 
-sealed class AppApiKind : KubernetesSpec<AppApiSpec> { }
+sealed class OidcClientApiKind : KubernetesSpec<OidcClientApiSpec>;

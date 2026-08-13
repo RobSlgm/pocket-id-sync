@@ -3,9 +3,9 @@ using System.Threading.Tasks;
 using PocketIdSync.Models;
 using RestSharp;
 
-namespace PocketIdSync.Apis.AppApis;
+namespace PocketIdSync.Apis.Apis;
 
-sealed class AppApisIdApi(PocketIdClient PocketId, string Id)
+sealed class ApisIdApi(PocketIdClient PocketId, string Id)
 {
     public async Task<ApiResult<ApiResponseDto>> GetAsync(CancellationToken ct)
     {

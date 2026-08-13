@@ -32,10 +32,10 @@ static partial class OidcClientMapper
     private static partial OidcClientCompleteDto Map(OidcClientSpec data);
 
     [MapperIgnoreSource(nameof(ApiPermissionMinimalDto.Id))]
-    private static partial AppApiPermission Map(ApiPermissionMinimalDto data);
+    private static partial ApiPermission Map(ApiPermissionMinimalDto data);
 
     [MapperIgnoreTarget(nameof(ApiPermissionMinimalDto.Id))]
-    private static partial ApiPermissionMinimalDto Map(AppApiPermission data);
+    private static partial ApiPermissionMinimalDto Map(ApiPermission data);
 
     private static OidcClientSpec ToSpec(OidcClientCompleteDto data)
     {

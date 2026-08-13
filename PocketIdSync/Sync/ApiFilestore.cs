@@ -10,14 +10,14 @@ using PocketIdSync.Utils;
 
 namespace PocketIdSync.Sync;
 
-sealed class AppApiFilestore : IConfigStoreAppApi
+sealed class ApiFilestore : IConfigStoreApi
 {
     private readonly DirectoryInfo Root;
     private readonly YamlHelper Yaml;
 
-    public AppApiFilestore(string rootPath, YamlHelper yamlHelper)
+    public ApiFilestore(string rootPath, YamlHelper yamlHelper)
     {
-        Root = Directory.CreateDirectory(Path.Combine(rootPath, "appapi"));
+        Root = Directory.CreateDirectory(Path.Combine(rootPath, "oidcclientapi"));
         Yaml = yamlHelper;
     }
 
@@ -29,19 +29,19 @@ sealed class AppApiFilestore : IConfigStoreAppApi
         }
     }
 
-    public async Task<int> LoadAsync(List<AppApiSyncItem> appApis, CancellationToken ct = default)
+    public async Task<int> LoadAsync(List<ApiSyncItem> apis, CancellationToken ct = default)
     {
         foreach (var specFile in Root.EnumerateFiles("*.yaml"))
         {
             try
             {
-                var sync = new AppApiSyncItem { Filename = specFile.FullName };
-                var readAppApi = await ReadFileAsync(sync, ct);
-                if (readAppApi is null)
+                var sync = new ApiSyncItem { Filename = specFile.FullName };
+                var readApi = await ReadFileAsync(sync, ct);
+                if (readApi is null)
                 {
                     continue;
                 }
-                var existing = appApis.FirstOrDefault(c => string.Equals(c.Name, sync.Name, StringComparison.OrdinalIgnoreCase));
+                var existing = apis.FirstOrDefault(c => string.Equals(c.Name, sync.Name, StringComparison.OrdinalIgnoreCase));
                 if (existing is not null)
                 {
                     existing.Filename = sync.Filename;
@@ -49,7 +49,7 @@ sealed class AppApiFilestore : IConfigStoreAppApi
                 }
                 else
                 {
-                    appApis.Add(sync);
+                    apis.Add(sync);
                 }
             }
             catch
@@ -60,7 +60,7 @@ sealed class AppApiFilestore : IConfigStoreAppApi
         return ExitCode.Success;
     }
 
-    public async Task<int> LoadAsync(List<AppApiSyncItem> appApis, string filename, string? ns = null, CancellationToken ct = default)
+    public async Task<int> LoadAsync(List<ApiSyncItem> apis, string filename, string? ns = null, CancellationToken ct = default)
     {
         try
         {
@@ -73,9 +73,9 @@ sealed class AppApiFilestore : IConfigStoreAppApi
             {
                 return ExitCode.BadRequest;
             }
-            var client = new AppApiSyncItem { Filename = specFile.FullName };
+            var client = new ApiSyncItem { Filename = specFile.FullName };
             await ReadFileAsync(client, ct);
-            appApis.Add(client);
+            apis.Add(client);
             return ExitCode.Success;
         }
         catch
@@ -84,11 +84,11 @@ sealed class AppApiFilestore : IConfigStoreAppApi
         }
     }
 
-    private async Task<AppApiSyncItem?> ReadFileAsync(AppApiSyncItem client, CancellationToken ct = default)
+    private async Task<ApiSyncItem?> ReadFileAsync(ApiSyncItem client, CancellationToken ct = default)
     {
         try
         {
-            var kind = await Yaml.ReadAsync<AppApiKind>(client.Filename!, ct);
+            var kind = await Yaml.ReadAsync<OidcClientApiKind>(client.Filename!, ct);
             if (kind is not null)
             {
                 client.Namespace = kind.Metadata?.Namespace ?? client.Namespace ?? "default";
@@ -109,27 +109,27 @@ sealed class AppApiFilestore : IConfigStoreAppApi
         }
     }
 
-    public async Task<int> SynchronizeAsync(AppApiSyncItem appApi, CancellationToken ct = default)
+    public async Task<int> SynchronizeAsync(ApiSyncItem api, CancellationToken ct = default)
     {
-        if (string.IsNullOrEmpty(appApi.Filename))
+        if (string.IsNullOrEmpty(api.Filename))
         {
-            FileInfo specFile = new FileInfo(Path.Combine(Root.FullName, $"{appApi.Id}.yaml"));
-            appApi.Filename = specFile.FullName;
+            FileInfo specFile = new FileInfo(Path.Combine(Root.FullName, $"{api.Id}.yaml"));
+            api.Filename = specFile.FullName;
         }
-        var ns = appApi.Local is null ? "default" : appApi.Namespace;
-        var kind = appApi.Remote?.ToKind(ns);
-        appApi.LocalMerged = kind;
-        appApi.IsLocalDirty = !appApi.IsRemoteEqualLocal;
+        var ns = api.Local is null ? "default" : api.Namespace;
+        var kind = api.Remote?.ToKind(ns);
+        api.LocalMerged = kind;
+        api.IsLocalDirty = !api.IsRemoteEqualLocal;
         return ExitCode.Success;
     }
 
-    public async Task<int> WriteAsync<T>(AppApiSyncItem appApi, T? data, CancellationToken ct = default) where T : IKubernetes
+    public async Task<int> WriteAsync<T>(ApiSyncItem api, T? data, CancellationToken ct = default) where T : IKubernetes
     {
         try
         {
-            if (data is null || string.IsNullOrEmpty(appApi.Filename)) return ExitCode.BadRequest;
-            var name = !string.Equals(data.Kind, "ApplicationApi", StringComparison.OrdinalIgnoreCase) ? $"{appApi.Id}.{data.Kind}.yaml" : $"{appApi.Id}.yaml";
-            var fileName = new FileInfo(appApi.Filename);
+            if (data is null || string.IsNullOrEmpty(api.Filename)) return ExitCode.BadRequest;
+            var name = !string.Equals(data.Kind, "OidcClientApi", StringComparison.OrdinalIgnoreCase) ? $"{api.Id}.{data.Kind}.yaml" : $"{api.Id}.yaml";
+            var fileName = new FileInfo(api.Filename);
             var yamlPath = Path.Combine(fileName.DirectoryName!, name);
             var content = Yaml.Write(data);
             var utf8Encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);

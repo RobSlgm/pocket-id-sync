@@ -10,7 +10,7 @@ namespace PocketIdSync.Cli.UserGroups;
 [CliCommand(
     Description = "Delete user group configuration from Pocket ID",
     Name = "delete",
-    Parent = typeof(UserGroupsCommand)
+    Parent = typeof(UserGroupCommand)
 )]
 sealed class DeleteCommand(IHttpClientFactory HttpClientFactory) : UserGroupsIdentityCommandBase
 {

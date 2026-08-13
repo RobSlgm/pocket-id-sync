@@ -8,13 +8,13 @@ using PocketIdSync.Repositories;
 using PocketIdSync.Utils;
 using Spectre.Console;
 
-namespace PocketIdSync.Cli.AppApis;
+namespace PocketIdSync.Cli.Apis;
 
 
 [CliCommand(
-   Description = "List application API definitions from Pocket ID",
+   Description = "List OIDC client API definitions from Pocket ID",
    Name = "list",
-   Parent = typeof(AppApisCommand)
+   Parent = typeof(ApiCommand)
 )]
 sealed class ListCommand(JsonHelper JsonHelper, IHttpClientFactory HttpClientFactory) : AuthorizationCommandBase
 {
@@ -27,7 +27,7 @@ sealed class ListCommand(JsonHelper JsonHelper, IHttpClientFactory HttpClientFac
     public async Task<int> RunAsync(CliContext context)
     {
         var pocketId = HttpClientFactory.Connect(PocketIdUri, ApiKey);
-        var resolver = new AppApiResolver();
+        var resolver = new ApiResolver();
 
         var apis = await resolver.Initialize(pocketId, context.CancellationToken);
         if (!apis.IsSuccessful)

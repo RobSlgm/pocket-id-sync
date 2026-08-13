@@ -3,13 +3,13 @@ using PocketIdSync.ModelSpecs;
 
 namespace PocketIdSync.Sync;
 
-sealed class AppApiSyncItem : ISyncItem<AppApiKind, ApiResponseDto>
+sealed class ApiSyncItem : ISyncItem<OidcClientApiKind, ApiResponseDto>
 {
     public string? Filename { get; set; }
     public string? Namespace { get; set; }
     public string? Name { get; set; }
     public string? Id { get; set; }
-    public AppApiKind? Local
+    public OidcClientApiKind? Local
     {
         get;
         set
@@ -18,7 +18,7 @@ sealed class AppApiSyncItem : ISyncItem<AppApiKind, ApiResponseDto>
             Verify();
         }
     }
-    public AppApiKind? LocalMerged { get; set; }
+    public OidcClientApiKind? LocalMerged { get; set; }
     public ApiResponseDto? Remote
     {
         get;
@@ -58,9 +58,9 @@ sealed class AppApiSyncItem : ISyncItem<AppApiKind, ApiResponseDto>
 }
 
 
-internal static class AppApiSyncItemExtensions
+internal static class ApiSyncItemExtensions
 {
-    extension(AppApiSyncItem Item)
+    extension(ApiSyncItem Item)
     {
         public bool IsMatch(SyncItemSelector? selector)
         {

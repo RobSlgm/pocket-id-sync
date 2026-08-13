@@ -6,12 +6,12 @@ using PocketIdSync.Apis;
 using PocketIdSync.Utils;
 using Spectre.Console;
 
-namespace PocketIdSync.Cli.ApiKeys;
+namespace PocketIdSync.Cli.Server.ApiKeys;
 
 [CliCommand(
    Description = "Delete Pocket ID API key",
    Name = "delete",
-   Parent = typeof(ApiKeysCommand)
+   Parent = typeof(ApiKeyCommand)
 )]
 sealed class DeleteCommand(JsonHelper JsonHelper, IHttpClientFactory HttpClientFactory) : ApiKeyIdentificationCommandBase
 {

@@ -8,28 +8,28 @@ using PocketIdSync.ModelSpecs;
 
 namespace PocketIdSync.Repositories;
 
-sealed class AppApiResolver
+sealed class ApiResolver
 {
-    public List<ApiResponseDto> AppApis = [];
+    public List<ApiResponseDto> Apis = [];
 
     public async Task<ApiResult<ApiResponseDto[]>> Initialize(PocketIdClient pocketId, CancellationToken ct)
     {
-        var response = await pocketId.AppApis.ListAsync(ct: ct);
+        var response = await pocketId.Apis.ListAsync(ct: ct);
         if (!response.IsSuccessful)
         {
             return response;
         }
         if (response.Data is not null)
         {
-            AppApis.Clear();
-            AppApis.AddRange(response.Data);
+            Apis.Clear();
+            Apis.AddRange(response.Data);
         }
         return response;
     }
 
     public ApiPermissionMinimalDto? Find(string id)
     {
-        foreach (var app in AppApis)
+        foreach (var app in Apis)
         {
             foreach (var permission in app.Permissions)
             {
@@ -47,9 +47,9 @@ sealed class AppApiResolver
         return null;
     }
 
-    public ApiPermissionMinimalDto? Find(AppApiPermission permission)
+    public ApiPermissionMinimalDto? Find(ApiPermission permission)
     {
-        var app = AppApis.Find(a => string.Equals(a.Resource, permission.Resource, System.StringComparison.Ordinal));
+        var app = Apis.Find(a => string.Equals(a.Resource, permission.Resource, System.StringComparison.Ordinal));
         if (app is not null && app.Resource is not null)
         {
             foreach (var p in app.Permissions)
@@ -69,9 +69,9 @@ sealed class AppApiResolver
     }
 }
 
-static class AppApiResolverExtensions
+static class ApiResolverExtensions
 {
-    extension(AppApiResolver resolver)
+    extension(ApiResolver resolver)
     {
         public ApiPermissionMinimalDto[]? ToPermissions(string[]? permissionIds)
         {
@@ -97,7 +97,7 @@ static class AppApiResolverExtensions
             return permissions.Count > 0 ? [.. permissions] : null;
         }
 
-        public (int ExitCode, ApiPermissionMinimalDto[]? Permissions, string? ErrorMessage) TryConvert(AppApiPermission[]? permissionRefs)
+        public (int ExitCode, ApiPermissionMinimalDto[]? Permissions, string? ErrorMessage) TryConvert(ApiPermission[]? permissionRefs)
         {
             if (permissionRefs is null || permissionRefs.Length == 0)
             {

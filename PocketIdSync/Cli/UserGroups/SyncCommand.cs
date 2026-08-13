@@ -18,7 +18,7 @@ namespace PocketIdSync.Cli.UserGroups;
     Description = "Sync user group configuration",
     Name = "sync",
     ShortFormAutoGenerate = CliNameAutoGenerate.Options,
-    Parent = typeof(UserGroupsCommand)
+    Parent = typeof(UserGroupCommand)
 )]
 sealed class SyncCommand(JsonHelper JsonHelper, YamlHelper Yaml, IHttpClientFactory HttpClientFactory) : SyncCommandBase
 {

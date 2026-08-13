@@ -7,13 +7,13 @@ using PocketIdSync.Models;
 using PocketIdSync.Utils;
 using Spectre.Console;
 
-namespace PocketIdSync.Cli.ApiKeys;
+namespace PocketIdSync.Cli.Server.ApiKeys;
 
 
 [CliCommand(
    Description = "List Pocket ID API keys",
    Name = "list",
-   Parent = typeof(ApiKeysCommand)
+   Parent = typeof(ApiKeyCommand)
 )]
 sealed class ListCommand(JsonHelper JsonHelper, IHttpClientFactory HttpClientFactory) : AuthorizationCommandBase
 {

@@ -4,7 +4,7 @@ using DotMake.CommandLine;
 namespace PocketIdSync.Cli.Server;
 
 [CliCommand(
-    Description = "Read and write Pocket ID server instance splash graphic",
+    Description = "Manage Pocket ID server instance splash graphic",
     ShortFormAutoGenerate = CliNameAutoGenerate.Options,
     Name = "image",
     Parent = typeof(ServerCommand)

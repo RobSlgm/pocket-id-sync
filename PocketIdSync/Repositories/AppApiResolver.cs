@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using PocketIdSync.Apis;
@@ -86,27 +87,15 @@ static class AppApiResolverExtensions
                 {
                     permissions.Add(permission);
                 }
+                else
+                {
+                    // throw as we loaded all possible client API permissions.
+                    // A mismatch is a severe violation on the target system
+                    throw new InvalidOperationException($"Missing API permission: {pid}");
+                }
             }
             return permissions.Count > 0 ? [.. permissions] : null;
         }
-
-        // public ApiPermissionMinimalDto[]? ToPermissions(AppApiPermission[]? permissionRefs)
-        // {
-        //     if (permissionRefs is null || permissionRefs.Length == 0)
-        //     {
-        //         return null;
-        //     }
-        //     var permissions = new List<ApiPermissionMinimalDto>();
-        //     foreach (var permRef in permissionRefs)
-        //     {
-        //         var permission = resolver.Find(permRef);
-        //         if (permission is not null)
-        //         {
-        //             permissions.Add(permission);
-        //         }
-        //     }
-        //     return permissions.Count > 0 ? [.. permissions] : null;
-        // }
 
         public (int ExitCode, ApiPermissionMinimalDto[]? Permissions, string? ErrorMessage) TryConvert(AppApiPermission[]? permissionRefs)
         {

@@ -20,12 +20,12 @@ The primary goal of this tool is to provide a **declarative approach** to managi
 
 ## Current State
 
-**Status: Early Beta**
+**Status: Beta**
 
 The core synchronization logic is functional. Current development is focused on stabilizing the integration with the Pocket ID API and refining the schema to ensure compatibility with future Kubernetes-native implementations.
 
 > [!WARNING]
-> As this is an early beta, the YAML schemas are subject to change.
+> As this is an beta, the YAML schemas are subject to change.
 
 
 # Quick start
@@ -40,7 +40,7 @@ Log in to your Pocket ID instance and generate an API Key via the settings dashb
 
 ## 3. Usage
 
-The CLI is structured into two main resource commands: `oidc-client` and `user-groups`. Use the `--help` flag at any level to see available options.
+The CLI is structured into these main resource commands: `oidc-client`, `user-group` and `api`. Use the `--help` flag at any level to see available options.
 
 ```shell
 # General help
@@ -94,6 +94,23 @@ spec:
       value: de-CH
 ```
 
+## OIDC client API
+
+```yaml
+apiVersion: pocketid.closure.ch/v1
+kind: OidcClientApi
+metadata:
+  name: https-example.com-v2
+  namespace: default
+spec:
+  resource: https://example.com/v2
+  name: An Example API (v2)
+  permissions:
+    - key: sysops
+      name: System Operator Level
+      description: Whatever you want to describe
+```
+
 ## OIDCClient
 
 ```yaml
@@ -114,20 +131,31 @@ spec:
   name: An example Application
   pkceEnabled: true
   requiresReauthentication: false
+  requiresPushedAuthorizationRequests: false
+  skipConsent: false
+  credentials: {}
   allowedGroups:
     - public
     - family
+  accessTokenDurationMinutes: 5
+  refreshTokenDurationMinutes: 43200
   logoPath: an-example-application.jpg
   logoContent: >-
     /9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMD...
   logoDarkPath: an-example-application-dark.svg
   logoDarkContent: >-
     PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NDAiIGhla...
+  userDelegatedPermissions:
+    - resource: https://example.com/v2
+      key: "sysops"
+  # clientPermissions: with same structure as userDelegatedPermissions
 ```
 
 - **Optional Fields**: All values under spec are technically optional.
 
 - **User group Dependencies**: If `allowedGroups` are specified, the groups must already exist in Pocket ID. The CLI will validate this and return an error if a group definition is missing. The allowed groups correspond to the name (not Id) of the user group.
+
+- **OIDC client API Dependencies**: If `userDelegatedPermissions` or `clientPermissions` are specified, the APIs must already exist in Pocket ID. The CLI will validate this and return an error if the API and/or permission is missing.
 
 - **Secret Management**: When an OIDC client is configured as private (`isPublic: false`), Pocket ID generates a Client Secret.
   - **Kubernetes Compatibility**: The CLI automatically saves this secret locally in a dedicated file named `<client-name>-Secret.yaml`, formatted as a standard Kubernetes Secret.
@@ -144,7 +172,7 @@ spec:
 
 ### Local configuration store
 
-Currently the local configuration must be stored in an existing directory (option `--store-root`). The subdirectories `oidcclient` and `usergroup` are created and contain the corresponding specification files.
+Currently the local configuration must be stored in an existing directory (option `--store-root`). The subdirectories `oidcclient`, `usergroup` and `oidcclientapi` are created and contain the corresponding specification files.
 
 ## Disclaimer
 

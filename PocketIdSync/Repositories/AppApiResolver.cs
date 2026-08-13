@@ -90,11 +90,29 @@ static class AppApiResolverExtensions
             return permissions.Count > 0 ? [.. permissions] : null;
         }
 
-        public ApiPermissionMinimalDto[]? ToPermissions(AppApiPermission[]? permissionRefs)
+        // public ApiPermissionMinimalDto[]? ToPermissions(AppApiPermission[]? permissionRefs)
+        // {
+        //     if (permissionRefs is null || permissionRefs.Length == 0)
+        //     {
+        //         return null;
+        //     }
+        //     var permissions = new List<ApiPermissionMinimalDto>();
+        //     foreach (var permRef in permissionRefs)
+        //     {
+        //         var permission = resolver.Find(permRef);
+        //         if (permission is not null)
+        //         {
+        //             permissions.Add(permission);
+        //         }
+        //     }
+        //     return permissions.Count > 0 ? [.. permissions] : null;
+        // }
+
+        public (int ExitCode, ApiPermissionMinimalDto[]? Permissions, string? ErrorMessage) TryConvert(AppApiPermission[]? permissionRefs)
         {
             if (permissionRefs is null || permissionRefs.Length == 0)
             {
-                return null;
+                return (ExitCode.Success, null, null);
             }
             var permissions = new List<ApiPermissionMinimalDto>();
             foreach (var permRef in permissionRefs)
@@ -104,8 +122,12 @@ static class AppApiResolverExtensions
                 {
                     permissions.Add(permission);
                 }
+                else
+                {
+                    return (ExitCode.BadRequest, null, $"{permRef.Resource} {permRef.Key}");
+                }
             }
-            return permissions.Count > 0 ? [.. permissions] : null;
+            return (ExitCode.Success, permissions.Count > 0 ? [.. permissions] : null, null);
         }
     }
 }

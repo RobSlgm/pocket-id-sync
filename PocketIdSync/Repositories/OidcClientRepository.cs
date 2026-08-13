@@ -50,8 +50,20 @@ sealed class OidcClientRepository
             {
                 return (ExitCode.FatalError, null, "Failed to load application api data");
             }
-            oidcClient.ClientPermissions = AppApiResolver.ToPermissions(clientData.ClientPermissions);
-            oidcClient.UserDelegatedPermissions = AppApiResolver.ToPermissions(clientData.UserDelegatedPermissions);
+
+            var (cpCode, cpPermissions, cpErrorMessage) = AppApiResolver.TryConvert(clientData.ClientPermissions);
+            if (cpCode != ExitCode.Success)
+            {
+                return (ExitCode.BadRequest, null, $"Application Api client permission not found: {cpErrorMessage}");
+            }
+            oidcClient.ClientPermissions = cpPermissions;
+
+            var (udCode, udPermissions, udErrorMessage) = AppApiResolver.TryConvert(clientData.UserDelegatedPermissions);
+            if (udCode != ExitCode.Success)
+            {
+                return (ExitCode.BadRequest, null, $"Application Api user delegated permission not found: {udErrorMessage}");
+            }
+            oidcClient.UserDelegatedPermissions = udPermissions;
         }
         if (oidcClient.IsGroupRestricted == true)
         {
@@ -66,7 +78,7 @@ sealed class OidcClientRepository
     }
 
 
-    public async Task<ApiResult<OidcClientCompleteDto>?> AmendAsync(PocketIdClient pocketId, string? clientId, OidcClientCompleteDto oidcClient, CancellationToken ct)
+    public static async Task<ApiResult<OidcClientCompleteDto>?> AmendAsync(PocketIdClient pocketId, string? clientId, OidcClientCompleteDto oidcClient, CancellationToken ct)
     {
         var baseResponse = clientId is null ?
             await pocketId.OidcClients.PostAsync(oidcClient.ToCreateRequest(), ct) :

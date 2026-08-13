@@ -5,7 +5,7 @@ namespace PocketIdSync.Utils;
 
 static partial class StringNameConverter
 {
-     public static string ToSafeName(string? uri)
+    public static string ToSafeName(string? uri)
     {
         if (string.IsNullOrEmpty(uri))
         {

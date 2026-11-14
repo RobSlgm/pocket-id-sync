@@ -25,9 +25,9 @@ sealed class StaticByteArrayConverter : IYamlTypeConverter
             string cleanBase64 = scalar.Value.Replace("\n", "").Replace("\r", "").Trim();
             return Convert.FromBase64String(cleanBase64);
         }
-        catch (FormatException)
+        catch (FormatException fe)
         {
-            throw new YamlException(scalar.Start, scalar.End, "Invalid Base64 format for byte array.");
+            throw new YamlException(scalar.Start, scalar.End, "Invalid Base64 format for byte array.", fe);
         }
     }
 

@@ -10,7 +10,7 @@ on:
 env:
   PROJECT_PATH: "PocketIdSync/PocketIdSync.csproj"
   APP_NAME: "PocketIdSync"
-  DOTNET_VERSION: "10.x"
+  DOTNET_VERSION: "11.x"
 
 jobs:
   build:
